@@ -1,5 +1,0 @@
-[{
-    "connections": [
-        {"path": "/home/root/db.db", "type": "timeseries/table", "timeColumnName": "time(only required for timeseries)", "valueColumnName": "value(only for timeseries)"}
-    ]
-}]

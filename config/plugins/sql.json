@@ -1,0 +1,19 @@
+{
+    "connection": {
+        "address": "sqlite:////home/zsemi02/test.db"
+    },
+    "database": {
+        "tables": [
+            {"name": "cpu_usage", "type": "timeseries", "timeColumn": "time", "valueColumn": "cpu"},
+            {
+                "name": "app_usage",
+                "type": "table", 
+                "columns": [
+                    {"name": "app_id", "type": "multi-select"},
+                    {"name": "value", "type": "input"}
+                ]
+            }
+        ]
+
+    }
+}

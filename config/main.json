@@ -1,3 +1,11 @@
-[{
-    "log": {}
-}]
+{
+    "log": {},
+    "plugins": [
+        {"name": "sql", "config": "config/plugins/sql.json"}
+    ],
+    "listen": 
+    {
+        "port": 5000,
+        "address": "0.0.0.0"
+    }
+}
