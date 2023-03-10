@@ -4,13 +4,21 @@
     },
     "database": {
         "tables": [
-            {"name": "cpu_usage", "type": "timeseries", "timeColumn": "time", "valueColumn": "cpu"},
+            {
+                "name": "cpu_usage",
+                "type": "timeseries",
+                "timeColumn": "time",
+                "columns": [
+                    {"name": "time", "type": "time", "input": "input"},
+                    {"name": "cpu", "type": "number", "input": "input"}
+                ]
+            },
             {
                 "name": "app_usage",
                 "type": "table", 
                 "columns": [
-                    {"name": "app_id", "type": "multi-select"},
-                    {"name": "value", "type": "input"}
+                    {"name": "app_id", "type": "string", "input": "multi-select"},
+                    {"name": "value", "type": "number", "input": "input"}
                 ]
             }
         ]
