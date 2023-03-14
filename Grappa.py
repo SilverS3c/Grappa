@@ -6,6 +6,7 @@ from sqlalchemy.inspection import inspect
 import sys
 import argparse
 import logging
+import importlib
 
 argparser = argparse.ArgumentParser(description="python3 grappa.py -b/--backend <plugin> -i/--id <app identifier>")
 
@@ -96,7 +97,7 @@ def addToStatementOr(vals, payload, elem):
         elif type(elem) is str:
             vals.append(text("{} = '{}'".format(payload, elem)))
 
-def addToStatement(stmt, payload, elem):                                                                                #TODO: for multiselect values add OR operator
+def addToStatement(stmt, payload, elem):
     if elem.startswith(">") or elem.startswith("<"):
         if elem[1] == "=":
             stmt = stmt.where(text("{} {} {}".format(payload, elem[:2], elem[2:])))
@@ -120,7 +121,7 @@ def addFilteringOptions(stmt, target):
     for payload, val in target["payload"].items():
         if payload not in cols:
             continue
-        if type(val) == list:               #TODO OR operators here
+        if type(val) == list:
             vals = []
             for elem in val:
                 #stmt = addToStatement(stmt, payload, elem)

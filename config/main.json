@@ -1,5 +1,9 @@
 {
-    "log": {},
+    "log": {
+        "format": "json",
+        "severity": "info",
+        "file": "logs/grappa.log"
+    },
     "plugins": [
         {"name": "sql", "config": "config/plugins/sql.json"}
     ],
