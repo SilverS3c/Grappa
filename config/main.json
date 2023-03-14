@@ -5,7 +5,7 @@
         "file": "logs/grappa.log"
     },
     "plugins": [
-        {"name": "sql", "config": "config/plugins/sql.json"}
+        {"name": "sql", "file": "sql", "config": "config/plugins/sql.json"}
     ],
     "listen": 
     {
