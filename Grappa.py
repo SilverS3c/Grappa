@@ -1,8 +1,5 @@
 from flask import Flask, jsonify, request
 import json
-import sqlite3
-from sqlalchemy import create_engine, text, MetaData, Table, sql, exc, select, or_
-from sqlalchemy.inspection import inspect
 import sys
 import argparse
 import logging
@@ -50,10 +47,10 @@ def loadPluginConfig():
 PLUGIN_CONF = loadPluginConfig()
 
 def getPluginPath():
-     for plugin in CONFIG["plugins"]:
-            if plugin["name"] == args.backend[0]:
-                 print(plugin)
-                 return plugin["file"]
+    for plugin in CONFIG["plugins"]:
+        if plugin["name"] == args.backend[0]:
+            return plugin["file"]
+    raise Exception("No plugin found!")
             
 grappa = Grappa(CONFIG, PLUGIN_CONF, getPluginPath())
 

@@ -3,6 +3,7 @@ import sqlite3
 from sqlalchemy import create_engine, text, MetaData, Table, sql, exc, select, or_
 from sqlalchemy.inspection import inspect
 import logging
+import datetime
 
 class Plugin:
     def __init__(self, CONFIG, PLUGIN_CONF):
@@ -88,10 +89,21 @@ class Plugin:
         obj = []
         # Data has to be filtered based on the request payload
         if self.getTable(target["target"])["type"] == "timeseries":
-            stmt = select(text("{},{}".format(self.getTableColumnNamesStr(target["target"], [self.getTable(target["target"])["timeColumn"]]), self.getTable(target["target"])["timeColumn"]))).select_from(text("{}".format(target["target"]))).where((text("{} <= strftime('%s', :to)*1000".format(self.getTable(target["target"])["timeColumn"])) & text("{} >= strftime('%s', :from)*1000".format(self.getTable(target["target"])["timeColumn"]))))
+            dateFrom = datetime.datetime.strptime(request["range"]["from"], '%Y-%m-%dT%H:%M:%S.%fZ')
+            dateFrom = str((dateFrom - datetime.datetime(1970, 1, 1)).total_seconds()*1000)
+            dateFrom = dateFrom[:-2]
+
+            dateTo = datetime.datetime.strptime(request["range"]["to"], '%Y-%m-%dT%H:%M:%S.%fZ')
+            dateTo = str((dateTo - datetime.datetime(1970, 1, 1)).total_seconds()*1000)
+            dateTo = dateTo[:-2]
+
+            print(dateFrom)
+            print(dateTo)
+
+            stmt = select(text("{},{}".format(self.getTableColumnNamesStr(target["target"], [self.getTable(target["target"])["timeColumn"]]), self.getTable(target["target"])["timeColumn"]))).select_from(text("{}".format(target["target"]))).where((text("{} <= :to".format(self.getTable(target["target"])["timeColumn"])) & text("{} >= :from".format(self.getTable(target["target"])["timeColumn"]))))
             stmt = self.addFilteringOptions(stmt, target)
             print(stmt)
-            result = conn.execute(stmt, {"to": request["range"]["to"], "from": request["range"]["from"]})
+            result = conn.execute(stmt, {"to": dateTo, "from": dateFrom})
         else:
             stmt = select(text("{}".format(self.getTableColumnNamesStr(target["target"])))).select_from(text("{}".format(target["target"])))
             stmt = self.addFilteringOptions(stmt, target)
