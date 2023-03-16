@@ -4,24 +4,71 @@ import sys
 import argparse
 import logging
 import importlib
+import os
+
+class GrappaLogging:
+    class Type:
+        REQUEST = "Request"
+        RESPONSE = "Response"
+
+    levels = {
+        "debug": logging.DEBUG,
+        "info": logging.INFO,
+        "warning": logging.WARNING,
+        "error": logging.ERROR,
+        "critical": logging.CRITICAL
+    }
+    logger = None
+    def init(filename, format, level, appid, plugin):
+        if format.lower() == "json":
+            template = '{"time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
+        else:
+            template = 'time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s'.format(appid, plugin)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        GrappaLogging.logger = logging.getLogger("Grappa")
+        GrappaLogging.logger.setLevel(GrappaLogging.parseLogLevel(level))
+        fh = logging.FileHandler(filename)
+        fh.setLevel(GrappaLogging.parseLogLevel(level))
+        ch = logging.StreamHandler()
+        ch.setLevel(GrappaLogging.parseLogLevel(level))
+        formatter = logging.Formatter(template, "%Y-%m-%dT%H:%M:%S%zZ")
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        
+        GrappaLogging.logger.addHandler(fh)
+        GrappaLogging.logger.addHandler(ch)
+        
+    
+    def parseLogLevel(level):
+        return GrappaLogging.levels[level.lower()]
+    
+    def getLogger():
+        return GrappaLogging.logger
+
 
 class Grappa:
-    def __init__(self, CONFIG, PLUGIN_CONF, pluginPath):
+    def __init__(self, CONFIG, PLUGIN_CONF, pluginPath, instanceId, pluginName):
         self.CONFIG = CONFIG
         self.PLUGIN_CONF = PLUGIN_CONF
         self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF)
+        self.instanceId = instanceId
+        GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName)
 
     def healthCheck(self):
+        GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         return ""
 
     def metrics(self):
+        GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         metrics = self.plugin.getMetrics()
         return metrics
 
     def metricPayloadOptions(self):
+        GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         return self.plugin.loadMetricPayloadOptions(request.get_json())
 
     def query(self):
+        GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         result = self.plugin.queryDb(request.get_json())
         return result
     
@@ -52,7 +99,7 @@ def getPluginPath():
             return plugin["file"]
     raise Exception("No plugin found!")
             
-grappa = Grappa(CONFIG, PLUGIN_CONF, getPluginPath())
+grappa = Grappa(CONFIG, PLUGIN_CONF, getPluginPath(), args.id[0], args.backend[0])
 
 app = Flask(__name__)
 

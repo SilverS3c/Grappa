@@ -1,8 +1,8 @@
 {
     "log": {
         "format": "json",
-        "severity": "info",
-        "file": "logs/grappa.log"
+        "level": "info",
+        "file": "/home/zsemi02/logs/grappa.log"
     },
     "plugins": [
         {"name": "sql", "file": "sql", "config": "config/plugins/sql.json"}
