@@ -5,10 +5,12 @@ from sqlalchemy.inspection import inspect
 import logging
 import datetime
 
+
 class Plugin:
-    def __init__(self, CONFIG, PLUGIN_CONF):
+    def __init__(self, CONFIG, PLUGIN_CONF, logger):
         self.CONFIG = CONFIG
         self.PLUGIN_CONF = PLUGIN_CONF
+        self.logger = logger
 
     def queryDb(self, request):
         response = []
@@ -16,20 +18,23 @@ class Plugin:
         engine = create_engine(self.PLUGIN_CONF["connection"]["address"])
         
         with engine.connect() as conn:
-            for target in request["targets"]:
-                response.append({})
-                if self.getTable(target["target"])["type"] == "table":
-                    # table case
-                    response[targetnum] = {"type": "table", "columns": [], "rows": []}
-                    response[targetnum]["columns"] = self.getTableInfo(target["target"])
-                    response[targetnum]["rows"] = self.queryDataFromDb(conn, target, request)
-                else:
-                    # timeseries case
-                    timeseriesTarget = {}
-                    timeseriesTarget["target"] = target["target"]
-                    timeseriesTarget["datapoints"] = self.queryDataFromDb(conn, target, request)
-                    response[targetnum] = timeseriesTarget
-                targetnum += 1
+            try:
+                for target in request["targets"]:
+                    response.append({})
+                    if self.getTable(target["target"])["type"] == "table":
+                        # table case
+                        response[targetnum] = {"type": "table", "columns": [], "rows": []}
+                        response[targetnum]["columns"] = self.getTableInfo(target["target"])
+                        response[targetnum]["rows"] = self.queryDataFromDb(conn, target, request)
+                    else:
+                        # timeseries case
+                        timeseriesTarget = {}
+                        timeseriesTarget["target"] = target["target"]
+                        timeseriesTarget["datapoints"] = self.queryDataFromDb(conn, target, request)
+                        response[targetnum] = timeseriesTarget
+                    targetnum += 1
+            except Exception as e:
+                self.logger.error(e, extra={"type": "", "method": "", "endpoint": "/query"})
         return response
 
     def addToStatementOr(self, vals, payload, elem):
@@ -168,3 +173,4 @@ class Plugin:
         for table in self.PLUGIN_CONF["database"]["tables"]:
             if table["name"] == tableName:
                 return table
+        raise Exception("No such table in config file " + tableName)

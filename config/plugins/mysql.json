@@ -1,0 +1,19 @@
+{
+    "connection": {
+        "address": "mysql+mysqlconnector://root:pssword@172.17.0.2/grafanatest"
+    },
+    "database": {
+        "tables": [
+            {
+                "name": "ram_usage",
+                "type": "timeseries",
+                "timeColumn": "time",
+                "columns": [
+                    {"name": "time", "type": "time", "input": "input"},
+                    {"name": "ram", "type": "number", "input": "input"}
+                ]
+            }
+        ]
+
+    }
+}

@@ -21,9 +21,9 @@ class GrappaLogging:
     logger = None
     def init(filename, format, level, appid, plugin):
         if format.lower() == "json":
-            template = '{"time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
+            template = '{"time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}", "msg": "%(message)s"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
         else:
-            template = 'time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s'.format(appid, plugin)
+            template = 'time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s, msg=%(message)s'.format(appid, plugin)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         GrappaLogging.logger = logging.getLogger("Grappa")
         GrappaLogging.logger.setLevel(GrappaLogging.parseLogLevel(level))
@@ -50,9 +50,11 @@ class Grappa:
     def __init__(self, CONFIG, PLUGIN_CONF, pluginPath, instanceId, pluginName):
         self.CONFIG = CONFIG
         self.PLUGIN_CONF = PLUGIN_CONF
-        self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF)
         self.instanceId = instanceId
         GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName)
+        self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF, GrappaLogging.getLogger())
+        
+        
 
     def healthCheck(self):
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
