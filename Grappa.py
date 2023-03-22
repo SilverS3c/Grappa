@@ -3,6 +3,7 @@ import json
 import sys
 import argparse
 import logging
+import logging.handlers
 import importlib
 import os
 
@@ -19,7 +20,7 @@ class GrappaLogging:
         "critical": logging.CRITICAL
     }
     logger = None
-    def init(filename, format, level, appid, plugin):
+    def init(filename, format, level, appid, plugin, rotationConfig):
         if format.lower() == "json":
             template = '{"time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}", "msg": "%(message)s"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
         else:
@@ -27,15 +28,27 @@ class GrappaLogging:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         GrappaLogging.logger = logging.getLogger("Grappa")
         GrappaLogging.logger.setLevel(GrappaLogging.parseLogLevel(level))
-        fh = logging.FileHandler(filename)
-        fh.setLevel(GrappaLogging.parseLogLevel(level))
+        
         ch = logging.StreamHandler()
         ch.setLevel(GrappaLogging.parseLogLevel(level))
         formatter = logging.Formatter(template, "%Y-%m-%dT%H:%M:%S%zZ")
-        fh.setFormatter(formatter)
-        ch.setFormatter(formatter)
         
-        GrappaLogging.logger.addHandler(fh)
+        ch.setFormatter(formatter)
+        if rotationConfig["active"].tolower() == "size" and rotationConfig["size"] != 0 and rotationConfig["size"] != "0" and rotationConfig["size"] != "":
+            sizehandler = logging.handlers.RotatingFileHandler(filename, maxBytes=GrappaLogging.convertSize(rotationConfig["size"]), backupCount=rotationConfig["backupCount"])
+            sizehandler.setLevel(GrappaLogging.parseLogLevel(level))
+            GrappaLogging.logger.addHandler(sizehandler)
+        elif rotationConfig["active"].tolower() == "time" and rotationConfig["time"] != 0:
+            timeHandler = logging.handlers.TimedRotatingFileHandler(filename, when="M", interval=rotationConfig["time"], backupCount=rotationConfig["backupCount"])
+            timeHandler.setLevel(GrappaLogging.parseLogLevel(level))
+            GrappaLogging.logger.addHandler(timeHandler)
+        else:
+            fh = logging.FileHandler(filename)
+            fh.setLevel(GrappaLogging.parseLogLevel(level))
+            fh.setFormatter(formatter)
+            GrappaLogging.logger.addHandler(fh)
+        
+        
         GrappaLogging.logger.addHandler(ch)
         
     
@@ -44,6 +57,28 @@ class GrappaLogging:
     
     def getLogger():
         return GrappaLogging.logger
+    
+    def convertSize(size):
+        parse = {
+            "b": 1,
+            "kb": 1000,
+            "k":  1000,
+            "mb": 1000**2,
+            "m":  1000**2,
+            "gb": 1000**3,
+            "g":  1000**3,
+            "tb": 1000**4
+        }
+        sizeText = ""
+        for char in size:
+            if ord(char) < 48 or ord(char) > 57:    #ASCII 48 = '0', 57 = '9'
+                sizeText += char
+        if sizeText == "":
+            sizeText = "b"
+        try:
+            return int(size[:-len(sizeText)]) * parse[sizeText.lower()]
+        except Exception as e:
+            GrappaLogging.getLogger().error(e, extra={"type": "", "method": "", "endpoint": "/query"})
 
 
 class Grappa:
@@ -51,7 +86,7 @@ class Grappa:
         self.CONFIG = CONFIG
         self.PLUGIN_CONF = PLUGIN_CONF
         self.instanceId = instanceId
-        GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName)
+        GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName, CONFIG["log"]["rotation"])
         self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF, GrappaLogging.getLogger())
         
         

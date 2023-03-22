@@ -2,7 +2,13 @@
     "log": {
         "format": "json",
         "level": "info",
-        "file": "/home/zsemi02/logs/grappa.log"
+        "file": "/home/zsemi02/logs/grappa.log",
+        "rotation": {
+            "active": "size",
+            "size": "5K",
+            "backupCount": 1,
+            "time": 5
+        }
     },
     "plugins": [
         {"name": "sql", "file": "sql", "config": "config/plugins/mysql.json"}

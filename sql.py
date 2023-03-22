@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, text, MetaData, Table, sql, exc, select, o
 from sqlalchemy.inspection import inspect
 import logging
 import datetime
+from flask import Response
 
 
 class Plugin:
@@ -17,8 +18,8 @@ class Plugin:
         targetnum = 0
         engine = create_engine(self.PLUGIN_CONF["connection"]["address"])
         
-        with engine.connect() as conn:
-            try:
+        try:
+            with engine.connect() as conn:
                 for target in request["targets"]:
                     response.append({})
                     if self.getTable(target["target"])["type"] == "table":
@@ -33,8 +34,9 @@ class Plugin:
                         timeseriesTarget["datapoints"] = self.queryDataFromDb(conn, target, request)
                         response[targetnum] = timeseriesTarget
                     targetnum += 1
-            except Exception as e:
-                self.logger.error(e, extra={"type": "", "method": "", "endpoint": "/query"})
+        except Exception as e:
+            self.logger.error(e, extra={"type": "", "method": "", "endpoint": "/query"})
+            return Response(str(e), status=500)
         return response
 
     def addToStatementOr(self, vals, payload, elem):
