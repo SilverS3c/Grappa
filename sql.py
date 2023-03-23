@@ -4,14 +4,11 @@ from sqlalchemy import create_engine, text, MetaData, Table, sql, exc, select, o
 from sqlalchemy.inspection import inspect
 import logging
 import datetime
-from flask import Response
+from flask import Response, request
+from PluginBase import PluginBase
 
 
-class Plugin:
-    def __init__(self, CONFIG, PLUGIN_CONF, logger):
-        self.CONFIG = CONFIG
-        self.PLUGIN_CONF = PLUGIN_CONF
-        self.logger = logger
+class Plugin(PluginBase):
 
     def queryDb(self, request):
         response = []
@@ -88,7 +85,6 @@ class Plugin:
 
             else:
                 stmt = self.addToStatement(stmt, payload, val)
-        print(stmt)
         return stmt
 
 
@@ -104,12 +100,8 @@ class Plugin:
             dateTo = str((dateTo - datetime.datetime(1970, 1, 1)).total_seconds()*1000)
             dateTo = dateTo[:-2]
 
-            print(dateFrom)
-            print(dateTo)
-
             stmt = select(text("{},{}".format(self.getTableColumnNamesStr(target["target"], [self.getTable(target["target"])["timeColumn"]]), self.getTable(target["target"])["timeColumn"]))).select_from(text("{}".format(target["target"]))).where((text("{} <= :to".format(self.getTable(target["target"])["timeColumn"])) & text("{} >= :from".format(self.getTable(target["target"])["timeColumn"]))))
             stmt = self.addFilteringOptions(stmt, target)
-            print(stmt)
             result = conn.execute(stmt, {"to": dateTo, "from": dateFrom})
         else:
             stmt = select(text("{}".format(self.getTableColumnNamesStr(target["target"])))).select_from(text("{}".format(target["target"])))
@@ -154,7 +146,8 @@ class Plugin:
             try:
                 result = conn.execute(text("SELECT DISTINCT {} FROM {}".format(req["name"], req["metric"])))
                 return [{"value": option[req["name"]], "label": option[req["name"]]} for option in result.mappings()]
-            except exc.OperationalError:
+            except exc.OperationalError as e:
+                self.logger.info(str(e), extra={"type": "", "method": "", "endpoint": request.path})
                 return []
 
     def getTableNames(self):
@@ -175,4 +168,6 @@ class Plugin:
         for table in self.PLUGIN_CONF["database"]["tables"]:
             if table["name"] == tableName:
                 return table
+        self.logger.info("No such table in config file " + tableName, extra={"type": "", "method": "", "endpoint": request.path})
         raise Exception("No such table in config file " + tableName)
+    

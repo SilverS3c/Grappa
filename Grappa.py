@@ -22,9 +22,9 @@ class GrappaLogging:
     logger = None
     def init(filename, format, level, appid, plugin, rotationConfig):
         if format.lower() == "json":
-            template = '{"time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}", "msg": "%(message)s"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
+            template = '{"level": "%(levelname)s", "time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}", "msg": "%(message)s"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
         else:
-            template = 'time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s, msg=%(message)s'.format(appid, plugin)
+            template = 'level=%(levelname)s, time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s, msg=%(message)s'.format(appid, plugin)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         GrappaLogging.logger = logging.getLogger("Grappa")
         GrappaLogging.logger.setLevel(GrappaLogging.parseLogLevel(level))
@@ -39,7 +39,7 @@ class GrappaLogging:
             sizehandler.setLevel(GrappaLogging.parseLogLevel(level))
             GrappaLogging.logger.addHandler(sizehandler)
         elif rotationConfig["active"].lower() == "time" and rotationConfig["time"] != 0:
-            timeHandler = logging.handlers.TimedRotatingFileHandler(filename, when="M", interval=rotationConfig["time"], backupCount=rotationConfig["backupCount"])
+            timeHandler = logging.handlers.TimedRotatingFileHandler(filename, when="d", interval=rotationConfig["time"], backupCount=rotationConfig["backupCount"])
             timeHandler.setLevel(GrappaLogging.parseLogLevel(level))
             GrappaLogging.logger.addHandler(timeHandler)
         else:

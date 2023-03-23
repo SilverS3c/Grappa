@@ -5,13 +5,14 @@
         "file": "/home/zsemi02/logs/grappa.log",
         "rotation": {
             "active": "size",
-            "size": "5K",
+            "size": "5M",
             "backupCount": 1,
-            "time": 5
+            "time": 0
         }
     },
     "plugins": [
-        {"name": "sql", "file": "sql", "config": "config/plugins/mysql.json"}
+        {"name": "sql", "file": "sql", "config": "config/plugins/mysql.json"},
+        {"name": "influxdb", "file": "influxdb", "config": "config/plugins/influxdb.json"}
     ],
     "listen": 
     {
