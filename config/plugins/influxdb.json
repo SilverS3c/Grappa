@@ -1,0 +1,10 @@
+{
+    "connection": {
+        "address": "http://172.17.0.3:8086",
+        "org": "main",
+        "token": "s_Z3M-eU6kaaAqxqbEGA4qpBhZ3rh0mePnrA6WjGQqL6txf51lhhPoFUvPVkJvSJ0vbWgF-5-G9jn8q2A8BMBQ=="
+    },
+    "database": {
+
+    }
+}

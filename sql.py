@@ -122,7 +122,7 @@ class Plugin(PluginBase):
         return obj
 
 
-    def getMetrics(self):
+    def getMetrics(self, req):
         response = []
         tables = self.getTableNames()
         for row in tables:

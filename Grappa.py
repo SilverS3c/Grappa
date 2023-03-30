@@ -97,7 +97,7 @@ class Grappa:
 
     def metrics(self):
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
-        metrics = self.plugin.getMetrics()
+        metrics = self.plugin.getMetrics(request.get_json())
         return metrics
 
     def metricPayloadOptions(self):
