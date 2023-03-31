@@ -16,6 +16,8 @@ class Plugin(PluginBase):
         response = []
         buckets = self.client.buckets_api().find_buckets()
         for bucket in buckets.buckets:
+            if bucket.name[0] == '_':
+                continue
             obj = {}
             obj["value"] = bucket.name
             obj["placheholder"] = "Select a bucket"
