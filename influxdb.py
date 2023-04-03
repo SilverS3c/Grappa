@@ -137,12 +137,22 @@ class Plugin(PluginBase):
                     print(val)
                     print()
                     val = val.values
-                    if val["_field"] not in respTargets:
-                        respTargets[val["_field"]] = []
-                    respTargets[val["_field"]].append([val["_value"], int(val["_time"].timestamp())*1000])
+                    valName = self.generateNameFromInfluxObject(val)
+                    if valName not in respTargets:
+                        respTargets[valName] = []
+                    respTargets[valName].append([val["_value"], int(val["_time"].timestamp())*1000])
             
             for obj in respTargets:
                 resp.append({"target": obj, "datapoints": respTargets[obj]})
             print(resp)
 
         return resp
+    
+    def generateNameFromInfluxObject(self, obj):
+        name = obj["_field"]
+        excludeTags = ["result", "table", "_start", "_stop", "_time", "_value", "_field"]
+        for tag in obj:
+            if tag in excludeTags:
+                continue
+            name += "_" + obj[tag]
+        return name
