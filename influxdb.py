@@ -69,29 +69,17 @@ class Plugin(PluginBase):
     def loadMetricPayloadOptions(self, req):
         resp = []
         if req["name"] == "_measurement":
-            query = f"""
-                        import \"influxdata/influxdb/schema\"
-
-                        schema.measurements(bucket: \"{req["metric"]}\")
-                        """
-            query_api = self.client.query_api()
-
-            tables = query_api.query(query=query, org=self.PLUGIN_CONF["connection"]["org"])
-            measurements = [row.values["_value"] for table in tables for row in table]
+            measurements = self.queryMeasurements(req)
             
             for measurement in measurements:
                 resp.append({"label": measurement, "value": measurement})
             return resp
 
-        # Multiple measurments are possible, and they might have fields with the same name. Maybe querying the field values for all measurements and then merging them? 
-        if "metric" in req and "payload" in req and "_measurement" in req["payload"]:
+        # Multiple measurments are possible, and they might have fields with the same name. Querying the field values for all measurements and merging them 
+        if self.isMeasurementSetInReq(req):
             values = []
             for measurement in req["payload"]["_measurement"]:
-                query = f"""import \"influxdata/influxdb/schema\"
-
-                schema.measurementTagValues(bucket: \"{req["metric"]}\", measurement: \"{measurement}\", tag: \"{req["name"]}\")"""
-
-                result = self.client.query_api().query(query)
+                result = self.queryTagValues(req, measurement)
                 for val in result[0]:
                     val = val.values
                     if val["_value"] in values or val["_value"][0] == "_":
@@ -101,29 +89,38 @@ class Plugin(PluginBase):
                         objvalue = {"label": val["_value"], "value": val["_value"]}
                         resp.append(objvalue)
             return resp
+        
+    def queryTagValues(self, req, measurement):
+        query = f"""import \"influxdata/influxdb/schema\"
 
+            schema.measurementTagValues(bucket: \"{req["metric"]}\", measurement: \"{measurement}\", tag: \"{req["name"]}\")"""
+        return self.client.query_api().query(query)
+        
+    def isMeasurementSetInReq(self, req):
+        return "metric" in req and "payload" in req and "_measurement" in req["payload"]
+    
+    def queryMeasurements(self, req):
+        query = f"""
+                import \"influxdata/influxdb/schema\"
+
+                schema.measurements(bucket: \"{req["metric"]}\")
+                """
+        query_api = self.client.query_api()
+
+        tables = query_api.query(query=query, org=self.PLUGIN_CONF["connection"]["org"])
+        return [row.values["_value"] for table in tables for row in table]
 
     def queryDb(self, request):
         resp = []
         targets = request["targets"]
         for target in targets:
-            payload = target["payload"]
             query = "from(bucket: \"{}\") |> range(start: {}, stop: {})".format(target["target"], request["range"]["from"], request["range"]["to"])
             payloadQuery = " |> filter(fn: (r) => {})"
-            payloadQueryData = ""
-            for key in payload:
-                if type(payload[key]) == list:
-                    iterations = 0
-                    for val in payload[key]:
-                        payloadQueryData = payloadQueryData + "r.{} == \"{}\" or ".format(key, val)
-                        iterations += 1
-                    if iterations > 0:
-                        payloadQueryData = payloadQueryData[:-3] + "and "
-                else:
-                    payloadQueryData = payloadQueryData + "r.{} == \"{}\" and ".format(key, payload[key])
-            payloadQueryData = payloadQueryData[:-5]
+            payload = target["payload"]
+            
+            payloadQueryData = self.generatePayloadQueryData(payload)
 
-            if "_measurement" in payload and len(payload["_measurement"]) > 0:
+            if self.hasMeasurementSelected(payload):
                 queryToRun = query + payloadQuery.format(payloadQueryData)
             else:
                 queryToRun = query
@@ -132,21 +129,41 @@ class Plugin(PluginBase):
 
             results = self.client.query_api().query(queryToRun)
             respTargets = {}
-            for result in results:
-                for val in result:
-                    print(val)
-                    print()
-                    val = val.values
-                    valName = self.generateNameFromInfluxObject(val)
-                    if valName not in respTargets:
-                        respTargets[valName] = []
-                    respTargets[valName].append([val["_value"], int(val["_time"].timestamp())*1000])
+            self.collectQueryResultsToTempObject(results, respTargets)
             
             for obj in respTargets:
                 resp.append({"target": obj, "datapoints": respTargets[obj]})
             print(resp)
 
         return resp
+    
+    def collectQueryResultsToTempObject(self, results, respTargets):
+        for result in results:
+            for val in result:
+                print(val)
+                print()
+                val = val.values
+                valName = self.generateNameFromInfluxObject(val)
+                if valName not in respTargets:
+                    respTargets[valName] = []
+                respTargets[valName].append([val["_value"], int(val["_time"].timestamp())*1000])
+    
+    def hasMeasurementSelected(self, payload):
+        return "_measurement" in payload and len(payload["_measurement"]) > 0
+    
+    def generatePayloadQueryData(self, payload):
+        payloadQueryData = ""
+        for key in payload:
+            if type(payload[key]) == list:
+                iterations = 0
+                for val in payload[key]:
+                    payloadQueryData = payloadQueryData + "r.{} == \"{}\" or ".format(key, val)
+                    iterations += 1
+                if iterations > 0:
+                    payloadQueryData = payloadQueryData[:-3] + "and "
+            else:
+                payloadQueryData = payloadQueryData + "r.{} == \"{}\" and ".format(key, payload[key])
+        return payloadQueryData[:-5]
     
     def generateNameFromInfluxObject(self, obj):
         name = obj["_field"]
