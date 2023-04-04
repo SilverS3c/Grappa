@@ -51,18 +51,14 @@ class Plugin(PluginBase):
                             tagobj = {"name": val["_value"], "type": "multi-select", "placeholder": "Select tag"}
                             obj["payloads"].append(tagobj)
 
-                    fieldQuery = """import "influxdata/influxdb/schema"
-
-                                    schema.measurementFieldKeys(bucket: "{}", measurement: "{}")""".format(bucket.name, measurement)
-                    result = self.client.query_api().query(fieldQuery)
-                    for val in result[0]:
-                        val = val.values
-                        tagobj = {"name": val["_value"], "type": "input", "placeholder": "Filter field"}
-                        obj["payloads"].append(tagobj)
+                    obj["payloads"].append({"name": "_field", "type": "multi-select", "placeholder": "Select the fields"})
+                    obj["payloads"].append({"name": "_value", "type": "input", "placeholder": "Filter the values"})
+                    
                     
 
             response.append(obj)
         return response
+
 
 
 
@@ -75,6 +71,14 @@ class Plugin(PluginBase):
                 resp.append({"label": measurement, "value": measurement})
             return resp
 
+        if req["name"] == "_field":
+            for measurement in req["payload"]["_measurement"]:
+                result = self.queryFieldNames(req, measurement)
+                for val in result[0]:
+                    val = val.values
+                    tagobj = {"value": val["_value"], "label": val["_value"]}
+                    resp.append(tagobj)
+            return resp
         # Multiple measurments are possible, and they might have fields with the same name. Querying the field values for all measurements and merging them 
         if self.isMeasurementSetInReq(req):
             values = []
@@ -89,6 +93,13 @@ class Plugin(PluginBase):
                         objvalue = {"label": val["_value"], "value": val["_value"]}
                         resp.append(objvalue)
             return resp
+        
+    def queryFieldNames(self, req, measurement):
+        fieldQuery = """import "influxdata/influxdb/schema"
+
+                    schema.measurementFieldKeys(bucket: "{}", measurement: "{}")""".format(req["metric"], measurement)
+        return self.client.query_api().query(fieldQuery)
+        
         
     def queryTagValues(self, req, measurement):
         query = f"""import \"influxdata/influxdb/schema\"
@@ -155,14 +166,25 @@ class Plugin(PluginBase):
         payloadQueryData = ""
         for key in payload:
             if type(payload[key]) == list:
+                payloadQueryData += "("
                 iterations = 0
                 for val in payload[key]:
                     payloadQueryData = payloadQueryData + "r.{} == \"{}\" or ".format(key, val)
                     iterations += 1
                 if iterations > 0:
-                    payloadQueryData = payloadQueryData[:-3] + "and "
+                    payloadQueryData = payloadQueryData[:-3] + ")" + " and "
+                elif iterations == 0:
+                    payloadQueryData = payloadQueryData[:-1]
             else:
-                payloadQueryData = payloadQueryData + "r.{} == \"{}\" and ".format(key, payload[key])
+                if payload[key][0] == '>' or payload[key][0] == '<':
+                    if payload[key][1] == '=':
+                        payloadQueryData = payloadQueryData + "r.{} {} {} and ".format(key, payload[key][:2], float(payload[key][2:].strip()))
+                    else:
+                        payloadQueryData = payloadQueryData + "r.{} {} {} and ".format(key, payload[key][0], float(payload[key][1:].strip()))
+                elif payload[key].startswith("!="):
+                     payloadQueryData = payloadQueryData + "r.{} != {} and ".format(key, float(payload[key][2:].strip()))
+                else:
+                    payloadQueryData = payloadQueryData + "r.{} == {} and ".format(key, float(payload[key].strip()))
         return payloadQueryData[:-5]
     
     def generateNameFromInfluxObject(self, obj):
