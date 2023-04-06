@@ -37,10 +37,13 @@ class GrappaLogging:
         if rotationConfig["active"].lower() == "size" and rotationConfig["size"] != 0 and rotationConfig["size"] != "0" and rotationConfig["size"] != "":
             sizehandler = logging.handlers.RotatingFileHandler(filename, maxBytes=GrappaLogging.convertSize(rotationConfig["size"]), backupCount=rotationConfig["backupCount"])
             sizehandler.setLevel(GrappaLogging.parseLogLevel(level))
+            sizehandler.setFormatter(formatter)
             GrappaLogging.logger.addHandler(sizehandler)
+            
         elif rotationConfig["active"].lower() == "time" and rotationConfig["time"] != 0:
             timeHandler = logging.handlers.TimedRotatingFileHandler(filename, when="d", interval=rotationConfig["time"], backupCount=rotationConfig["backupCount"])
             timeHandler.setLevel(GrappaLogging.parseLogLevel(level))
+            timeHandler.setFormatter(formatter)
             GrappaLogging.logger.addHandler(timeHandler)
         else:
             fh = logging.FileHandler(filename)
