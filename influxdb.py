@@ -23,10 +23,9 @@ class Plugin(PluginBase):
                 continue
             obj = {}
             obj["value"] = bucket.name
-            obj["placheholder"] = "Select a bucket"
+            obj["placeholder"] = "Select a bucket"
             obj["payloads"] = []
 
-            
             measurements_obj = {"name": "_measurement", "type": "multi-select", "placeholder": "Select a measurement", "reloadMetric": True}
 
             obj["payloads"].append(measurements_obj)
@@ -55,11 +54,8 @@ class Plugin(PluginBase):
                     obj["payloads"].append({"name": "_value", "type": "input", "placeholder": "Filter the values"})
                     
                     
-
             response.append(obj)
         return response
-
-
 
 
     def loadMetricPayloadOptions(self, req):
@@ -136,7 +132,6 @@ class Plugin(PluginBase):
             else:
                 queryToRun = query
 
-            print(queryToRun)
 
             results = self.client.query_api().query(queryToRun)
             respTargets = {}
@@ -144,15 +139,12 @@ class Plugin(PluginBase):
             
             for obj in respTargets:
                 resp.append({"target": obj, "datapoints": respTargets[obj]})
-            print(resp)
 
         return resp
     
     def collectQueryResultsToTempObject(self, results, respTargets):
         for result in results:
             for val in result:
-                print(val)
-                print()
                 val = val.values
                 valName = self.generateNameFromInfluxObject(val)
                 if valName not in respTargets:
@@ -176,6 +168,7 @@ class Plugin(PluginBase):
                 elif iterations == 0:
                     payloadQueryData = payloadQueryData[:-1]
             else:
+                # value filtering
                 if payload[key][0] == '>' or payload[key][0] == '<':
                     if payload[key][1] == '=':
                         payloadQueryData = payloadQueryData + "r.{} {} {} and ".format(key, payload[key][:2], float(payload[key][2:].strip()))

@@ -11,7 +11,8 @@
         }
     },
     "plugins": [
-        {"name": "sql", "file": "sql", "config": "config/plugins/mysql.json"},
+        {"name": "mysql", "file": "sql", "config": "config/plugins/mysql.json"},
+        {"name": "sqlite", "file": "sql", "config": "config/plugins/sql.json"},
         {"name": "influxdb", "file": "influxdb", "config": "config/plugins/influxdb.json"}
     ],
     "listen": 
