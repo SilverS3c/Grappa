@@ -24,7 +24,7 @@ class GrappaLogging:
         if format.lower() == "json":
             template = '{"level": "%(levelname)s", "time": "%(asctime)s",' + ' "app": "{}"'.format(appid) + ', "type": "%(type)s", ' + '"plugin": "{}", "msg": "%(message)s"'.format(plugin) + ', "method": "%(method)s", "endpoint": "%(endpoint)s"}'
         else:
-            template = 'level=%(levelname)s, time=%(asctime)s, app={}, type=%(type)s, plugin={}, method=%(method)s, endpoint=%(endpoint)s, msg=%(message)s'.format(appid, plugin)
+            template = 'level="%(levelname)s", time="%(asctime)s", app="{}", type="%(type)s", plugin="{}", method="%(method)s", endpoint="%(endpoint)s", msg="%(message)s"'.format(appid, plugin)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         GrappaLogging.logger = logging.getLogger("Grappa")
         GrappaLogging.logger.setLevel(GrappaLogging.parseLogLevel(level))
