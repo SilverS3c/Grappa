@@ -1,6 +1,6 @@
 {
     "log": {
-        "format": "structured",
+        "format": "json",
         "level": "info",
         "file": "/home/zsemi02/logs/grappa.log",
         "rotation": {
