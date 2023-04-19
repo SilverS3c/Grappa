@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
+from flask_httpauth import HTTPBasicAuth
 import json
 import sys
 import argparse
@@ -6,6 +7,7 @@ import logging
 import logging.handlers
 import importlib
 import os
+import hashlib
 
 class GrappaLogging:
     class Type:
@@ -91,6 +93,17 @@ class Grappa:
         self.instanceId = instanceId
         GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName, CONFIG["log"]["rotation"])
         self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF, GrappaLogging.getLogger())
+
+    def isAuthOk(self):
+        if CONFIG["auth"]:
+            if "authorization" not in request.headers:
+                return False
+            for user in CONFIG["users"]:
+                if user["username"] == request.authorization.username and user["password"] == hashlib.sha256(request.authorization.password.encode("utf-8")).hexdigest():
+                    return True
+            return False
+        else:
+            return True
         
         
 
@@ -99,15 +112,21 @@ class Grappa:
         return ""
 
     def metrics(self):
+        if not self.isAuthOk():
+            return Response(status=403)
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         metrics = self.plugin.getMetrics(request.get_json())
         return metrics
 
     def metricPayloadOptions(self):
+        if not self.isAuthOk():
+            return Response(status=403)
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         return self.plugin.loadMetricPayloadOptions(request.get_json())
 
     def query(self):
+        if not self.isAuthOk():
+            return Response(status=403)
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
         result = self.plugin.queryDb(request.get_json())
         return result

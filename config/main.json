@@ -19,5 +19,9 @@
     {
         "port": 5000,
         "address": "0.0.0.0"
-    }
+    },
+    "auth": true,
+    "users": [
+        {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+    ]
 }
