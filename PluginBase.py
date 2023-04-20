@@ -4,7 +4,7 @@ class PluginBase:
         self.PLUGIN_CONF = PLUGIN_CONF
         self.logger = logger
 
-    def getMetrics(self):
+    def getMetrics(self, request):
         pass
 
     def loadMetricPayloadOptions(self, req):
