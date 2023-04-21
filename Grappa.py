@@ -8,6 +8,7 @@ import logging.handlers
 import importlib
 import os
 import hashlib
+import monitor_endpoint
 
 class GrappaLogging:
     class Type:
@@ -93,6 +94,7 @@ class Grappa:
         self.instanceId = instanceId
         GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName, CONFIG["log"]["rotation"])
         self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF, GrappaLogging.getLogger())
+        self.monitoring = monitor_endpoint.Monitoring(CONFIG["monitoring"]["format"])
 
     def isAuthOk(self):
         if CONFIG["auth"]:
@@ -128,8 +130,14 @@ class Grappa:
         if not self.isAuthOk():
             return Response(status=403)
         GrappaLogging.getLogger().info("", extra={"type": GrappaLogging.Type.REQUEST, "method": request.method, "endpoint": request.path})
+        queryInfo = monitor_endpoint.QueryInfo()
         result = self.plugin.queryDb(request.get_json())
+        queryInfo.endProcessing()
+        self.monitoring.addQuery(queryInfo)
         return result
+    
+    def monitor(self):
+        return self.monitoring.getOutput()
     
 
 def loadMainConfig(path="./config/main.json"):
@@ -177,6 +185,10 @@ def metricPayloadOptions():
 @app.route('/query', methods = ['POST'])
 def query():
     return grappa.query()
+
+@app.route('/monitor')
+def monitor():
+    return grappa.monitor()
 
 if __name__ == '__main__':
     app.run(host=CONFIG["listen"]["address"], port=CONFIG["listen"]["port"], debug=True)
