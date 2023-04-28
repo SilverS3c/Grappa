@@ -10,26 +10,30 @@ class QueryInfo:
 
 
 class Monitoring:
-    def __init__(self, outputFormat: str, cleanInterval: int) -> None:
+    def __init__(self, outputFormat: str, cleanInterval: int, id: str) -> None:
         self.outputFormat = outputFormat
         self.queries = []
         self.cleanInterval = cleanInterval
+        self.id = id
+        self.totalQueryCount = 0
 
     def addQuery(self, query):
         self.queries.append(query)
+        self.totalQueryCount += 1
         self.cleanupQueries()
     
     def cleanupQueries(self):
-        for i in range(len(self.queries)):
-            if self.queries[i].time < (round(time.time()*1000) - self.cleanInterval):
-                self.queries.pop(i)
+        remove = []
+        for i in self.queries:
+            if i.time < (round(time.time()*1000) - self.cleanInterval):
+                remove.append(i)
+        for query in remove:
+            self.queries.remove(query)
 
     def getQueryCount(self):
-        self.cleanupQueries()
         return len(self.queries)
     
     def getAvgProcessingTime(self):
-        self.cleanupQueries()
         if len(self.queries) == 0:
             return 0
         avg = 0
@@ -38,7 +42,6 @@ class Monitoring:
         return avg/len(self.queries)
     
     def getMinProcessingTime(self):
-        self.cleanupQueries()
         if len(self.queries) == 0:
             return 0
         min = self.queries[0].processingTime
@@ -48,7 +51,6 @@ class Monitoring:
         return min
     
     def getMaxProcessingTime(self):
-        self.cleanupQueries()
         if len(self.queries) == 0:
             return 0
         max = self.queries[0].processingTime
@@ -69,22 +71,30 @@ class Monitoring:
         return self.queries[i-1].processingTime
 
     def getOutput(self):
+        self.cleanupQueries()
         return MonitoringOutput(self).buildResponse()
 
 class MonitoringOutput:
     def __init__(self, monitoring: Monitoring) -> None:
         self.monitoring = monitoring
+
+    def writePrometheusFormat(self, template: dict):
+        resp = ""
+        for key in template:
+            resp += f"{key}" + '{id="' + self.monitoring.id + '"}' + f" {template[key]}\n"
+        return resp
     
     def buildResponse(self):
-        self.template = {
-            "QueryCount": self.monitoring.getQueryCount(),
-            "AverageProcessingTime": self.monitoring.getAvgProcessingTime(),
-            "MinProcessingTime": self.monitoring.getMinProcessingTime(),
-            "MaxProcessingTime": self.monitoring.getMaxProcessingTime(),
+        template = {
+            "query_count": self.monitoring.getQueryCount(),
+            "average_processing_time": self.monitoring.getAvgProcessingTime(),
+            "min_processing_time": self.monitoring.getMinProcessingTime(),
+            "max_processing_time": self.monitoring.getMaxProcessingTime(),
+            "total_query_count": self.monitoring.totalQueryCount,
             "p80": self.monitoring.getPercentile(80),
             "p95": self.monitoring.getPercentile(95)
         }
         if self.monitoring.outputFormat.lower() == "json":
-            return self.template
+            return {f"{self.monitoring.id}": template}
         else:
-            return ""
+            return self.writePrometheusFormat(template)
