@@ -1,4 +1,5 @@
 {
+    "$schema": "schemas/main.schema.json",
     "log": {
         "format": "json",
         "level": "info",

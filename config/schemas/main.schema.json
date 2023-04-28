@@ -1,0 +1,127 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Main config",
+    "description": "Main configuration file of Grappa",
+    "type": "object",
+    "properties": {
+        "log": {
+            "type": "object",
+            "description": "Settings related to logging",
+            "properties": {
+                "format": {
+                    "type": "string",
+                    "enum": ["json", "structured"]
+                },
+                "level": {
+                    "type": "string",
+                    "enum": ["debug", "info", "warning", "error", "critical"]
+                },
+                "file": {
+                    "type": "string"
+                },
+                "rotation": {
+                    "type": "object",
+                    "description": "Log rotation settings",
+                    "properties": {
+                        "active": {
+                            "type": "string",
+                            "enum": ["size", "time"]
+                        },
+                        "size": {
+                            "type": "string",
+                            "pattern": "^[0-9]+(B|K|KB|M|MB|G|GB|TB)$"
+                        },
+                        "backupCount": {
+                            "type": "integer"
+                        },
+                        "time": {
+                            "type": "integer",
+                            "description": "Time in hours"
+                        }
+                    },
+                    "required": ["active", "size", "backupCount", "time"]
+                }
+            },
+            "required": ["format", "level", "file", "rotation"]
+        },
+        "plugins": {
+            "type": "array",
+            "description": "List of plugin objects",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "file": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "type": "string"
+                    }
+                },
+                "required": ["name", "file", "config"]
+            }
+        },
+        "listen": {
+            "type": "object",
+            "properties": {
+                "port": {
+                    "type": "integer"
+                },
+                "address": {
+                    "type": "string"
+                }
+            },
+            "required": ["port", "address"]
+        },
+        "auth": {
+            "type": "boolean"
+        },
+        "users": {
+            "type": "array",
+            "description": "List of users who are authorized to run queries",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "SHA256 hash"
+                    }
+                },
+                "required": ["username", "password"]
+            }
+        },
+        "monitoring": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "type": "string",
+                    "enum": ["json", "prometheus"],
+                    "description": "Output format for metrics"
+                },
+                "users": {
+                    "type": "array",
+                    "description": "List of users who are authorized to access the monitoring endpoint",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "username": {
+                                "type": "string"
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "SHA256 hash"
+                            }
+                        },
+                        "required": ["username", "password"]
+                    }
+                }
+            }
+        }
+    },
+    "required": ["log", "plugins", "listen", "auth", "users", "monitoring"]
+  }
