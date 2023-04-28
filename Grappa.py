@@ -107,6 +107,17 @@ class Grappa:
         else:
             return True
         
+    def isMonitorAuthOk(self):
+        if len(CONFIG["monitoring"]["users"]) != 0:
+            if "authorization" not in request.headers:
+                return False
+            for user in CONFIG["monitoring"]["users"]:
+                if user["username"] == request.authorization.username and user["password"] == hashlib.sha256(request.authorization.password.encode("utf-8")).hexdigest():
+                    return True
+            return False
+        else:
+            return True
+        
         
 
     def healthCheck(self):
@@ -137,6 +148,8 @@ class Grappa:
         return result
     
     def monitor(self):
+        if not self.isMonitorAuthOk():
+            return Response(status=403)
         return self.monitoring.getOutput()
     
 
