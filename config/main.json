@@ -1,4 +1,5 @@
 {
+    "$schema": "schemas/main.schema.json",
     "log": {
         "format": "json",
         "level": "info",
@@ -23,5 +24,11 @@
     "auth": true,
     "users": [
         {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
-    ]
+    ],
+    "monitoring": {
+        "format": "prometheus",
+        "users": [
+            {"username": "monitor", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+        ]
+    }
 }
