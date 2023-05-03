@@ -1,5 +1,11 @@
 import time
 
+
+class QueryUser:
+    def __init__(self, username: str) -> None:
+        self.time = round(time.time() * 1000)
+        self.username: str = username
+
 class QueryInfo:
     def __init__(self) -> None:
         self.time = round(time.time() * 1000)
@@ -12,10 +18,11 @@ class QueryInfo:
 class Monitoring:
     def __init__(self, outputFormat: str, cleanInterval: int, id: str) -> None:
         self.outputFormat = outputFormat
-        self.queries = []
+        self.queries: List[QueryInfo] = []
         self.cleanInterval = cleanInterval
         self.id = id
-        self.totalQueryCount = 0
+        self.totalQueryCount: int = 0
+        self.users: List[QueryUser] = []
 
     def addQuery(self, query):
         self.queries.append(query)
@@ -69,10 +76,26 @@ class Monitoring:
         self.queries.sort(key=lambda x: x.processingTime)
         i = round((float(percentile/100) if percentile > 1 else percentile) * len(self.queries))
         return self.queries[i-1].processingTime
+    
+    def userCall(self, username):
+        if username not in [user.username for user in self.users]:
+            self.users.append(QueryUser(username))
+
+    def getActiveUsers(self):
+        remove = []
+        for user in self.users:
+            if user.time < (round(time.time() * 1000) - self.cleanInterval):
+                remove.append(user)
+        for r in remove:
+            self.users.remove(r)
+        return len(self.users)
+        
 
     def getOutput(self):
         self.cleanupQueries()
         return MonitoringOutput(self).buildResponse()
+    
+    
 
 class MonitoringOutput:
     def __init__(self, monitoring: Monitoring) -> None:
@@ -92,7 +115,8 @@ class MonitoringOutput:
             "max_processing_time": self.monitoring.getMaxProcessingTime(),
             "total_query_count": self.monitoring.totalQueryCount,
             "p80": self.monitoring.getPercentile(80),
-            "p95": self.monitoring.getPercentile(95)
+            "p95": self.monitoring.getPercentile(95),
+            "unique_users": self.monitoring.getActiveUsers()
         }
         if self.monitoring.outputFormat.lower() == "json":
             return {f"{self.monitoring.id}": template}

@@ -145,6 +145,7 @@ class Grappa:
         result = self.plugin.queryDb(request.get_json())
         queryInfo.endProcessing()
         self.monitoring.addQuery(queryInfo)
+        self.monitoring.userCall(request.authorization.username)
         return result
     
     def monitor(self):
