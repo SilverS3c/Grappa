@@ -1,0 +1,74 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "SQL Config",
+    "description": "File to configure the SQL plugin for Grappa",
+    "type": "object",
+    "properties": {
+        "connection": {
+            "type": "object",
+            "description": "Configure the connection string.",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "description": "Connection string. Must be formatted according to SqlAlchemy's requirements."
+                }
+            },
+            "required": ["address"]
+        },
+        "database": {
+            "type": "object",
+            "description": "Configure the database layout",
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "description": "A table of the databse",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the table"
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "Table or Timeseries",
+                                "enum": ["table", "timeseries"]
+                            },
+                            "timeColumn": {
+                                "type": "string",
+                                "description": "Name of the column which holds the timestamps for the timeseries data"
+                            },
+                            "columns": {
+                                "type": "array",
+                                "description": "list of the columns",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "description": "Type of the data in the database",
+                                            "enum": ["string", "number", "time"]
+                                        },
+                                        "input": {
+                                            "type": "string",
+                                            "description": "Type of input which appears on Grafan's UI",
+                                            "enum": ["select", "multi-select", "input"]
+                                        }
+                                    },
+                                    "required": ["name", "type", "input"]
+                                }
+                            }
+                        },
+                        "required": ["type", "name", "columns"]
+                    }
+                }
+            },
+            "required": ["tables"]
+        }
+    },
+
+    "required": ["connection", "database"]
+}

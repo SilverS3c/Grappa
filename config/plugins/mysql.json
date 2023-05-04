@@ -1,4 +1,5 @@
 {
+    "$schema": "../schemas/sql.schema.json",
     "connection": {
         "address": "mysql+mysqlconnector://root:pssword@172.17.0.2/grafanatest"
     },

@@ -1,4 +1,5 @@
 {
+    "$schema": "../schemas/influxdb.schema.json",
     "connection": {
         "address": "http://172.17.0.3:8086",
         "org": "main",

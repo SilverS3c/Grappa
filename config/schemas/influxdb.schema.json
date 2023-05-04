@@ -1,0 +1,27 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "SQL Config",
+    "description": "File to configure the SQL plugin for Grappa",
+    "type": "object",
+    "properties": {
+        "connection": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "description": "target address"
+                },
+                "org": {
+                    "type": "string",
+                    "description": "Organization"
+                },
+                "token": {
+                    "type": "string",
+                    "description": "InfluxDb access token"
+                }
+            },
+            "required": ["address", "org", "token"]
+        }
+    },
+    "required": ["connection"]
+}
