@@ -205,4 +205,4 @@ def monitor():
     return grappa.monitor()
 
 if __name__ == '__main__':
-    app.run(host=CONFIG["listen"]["address"], port=CONFIG["listen"]["port"], debug=True)
+    app.run(host=CONFIG["listen"]["address"], port=CONFIG["listen"]["port"])
