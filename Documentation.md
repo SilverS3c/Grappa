@@ -63,6 +63,8 @@ To start the created image type:
 Two environment variables are necessary, BACKEND and ID.
 Note: Don't forget to change the port in the Dockerfile and in the command line if it's other than the default 5000!
 
+The config path is by default ``` ./config/main.json ```, but it can be changed via the ``` MAIN_CONFIG_PATH ``` environment variable.
+
 ## Creating new plugin
 
 Every new plugin needs to be placed in the application's root directory, and is required to extend the PluginBase class from PluginBase.py.
@@ -105,6 +107,22 @@ Similarly, users can be added in the main config file, in the "users" section in
 ```
 
 The password must be hashed with SHA256, and the hexdigest should be written in the "password" field.
+
+## Monitoring
+
+The ``` /monitor ``` endpoint is responsible for providing with various monitoring data. These are:
+  - query_count
+  - average_processing_time
+  - min_processing_time
+  - max_processing_time
+  - total_query_count
+  - p80
+  - p95
+  - unique_users
+
+The endpoint is only available for users who can authenticate as one of the monitoring group users. The user list can be specified in the main config.
+
+The output format can be either JSON or Prometheus compatible.
 
 ## Known issues
 

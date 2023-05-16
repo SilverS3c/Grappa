@@ -155,6 +155,9 @@ class Grappa:
     
 
 def loadMainConfig(path="./config/main.json"):
+        envPath = os.getenv("MAIN_CONFIG_PATH")
+        if envPath != None:
+            path = envPath
         with open(path, "r") as conf:
             return json.load(conf)
 
