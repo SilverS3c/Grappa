@@ -2,3 +2,4 @@ Flask==2.2.3
 SQLAlchemy==2.0.6
 influxdb-client
 Flask-HTTPAuth
+mysql-connector-python
