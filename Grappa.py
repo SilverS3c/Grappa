@@ -94,6 +94,7 @@ class Grappa:
         self.instanceId = instanceId
         GrappaLogging.init(CONFIG["log"]["file"], CONFIG["log"]["format"], CONFIG["log"]["level"], instanceId, pluginName, CONFIG["log"]["rotation"])
         self.plugin = importlib.import_module(pluginPath, ".").Plugin(CONFIG, PLUGIN_CONF, GrappaLogging.getLogger())
+        self.plugin.validateConfig(pluginName)
         self.monitoring = monitor_endpoint.Monitoring(CONFIG["monitoring"]["format"], 5*60*1000, instanceId)
 
     def isAuthOk(self):

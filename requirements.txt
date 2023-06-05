@@ -3,3 +3,4 @@ SQLAlchemy==2.0.6
 influxdb-client
 Flask-HTTPAuth
 mysql-connector-python
+jsonschema
