@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.DatabasesDeployment.MySQL.configmap }}
+  namespace: {{ .Values.namespace }}
+data:
+  init: |+
+    CREATE TABLE ram_usage (
+      time BIGINT UNSIGNED DEFAULT (UNIX_TIMESTAMP()*1000),
+      ram FLOAT NOT NULL
+    );
+    CREATE TABLE cpu_usage (
+      time BIGINT UNSIGNED DEFAULT (UNIX_TIMESTAMP()*1000),
+      cpu FLOAT NOT NULL
+    );

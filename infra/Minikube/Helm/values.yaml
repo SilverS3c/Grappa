@@ -1,0 +1,86 @@
+# Default values for GrappaHelm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: default
+
+GrappaDeployment:
+  name: grappa
+  influxdb:
+    name: grappa-influxdb
+    service:
+      port: 5000
+      targetPort: 5000
+      type: ClusterIP
+  mysql:
+    name: grappa-mysql
+    service:
+      port: 5001
+      targetPort: 5001
+      type: ClusterIP
+  image: zsemi02/grappa
+  replicaCount: 1
+  
+
+GrappaConfigMap:
+  name: configmap-grappa
+  configDir: /etc/grappa
+  mainConfig: main.json
+  influxdbPlugin: plugins/influxdb.json
+  mysqlPlugin: plugins/mysql.json
+  log: /dev/null
+
+GrappaConfigMapMySQL:
+  name: configmap-grappa-mysql
+  configDir: /etc/grappa
+  mainConfig: main.json
+  influxdbPlugin: plugins/influxdb.json
+  mysqlPlugin: plugins/mysql.json
+  log: /dev/null
+
+DatabasesDeployment:
+  name: databases
+  serviceType: ClusterIP
+  InfluxDb:
+    name: influxdb
+    image: influxdb
+    username: test
+    password: Password111
+    org: main
+    bucket: test-bucket
+    token: "s_Z3M-eU6kaaAqxqbEGA4qpBhZ3rh0mePnrA6WjGQqL6txf51lhhPoFUvPVkJvSJ0vbWgF-5-G9jn8q2A8BMBQ=="
+    service:
+      port: 8086
+      targetPort: 8086
+  MySQL:
+    name: mysql
+    image: mysql
+    username: test
+    password: Password111
+    database: test
+    configmap: configmap-mysql
+    service:
+      port: 3306
+      targetPort: 3306
+
+GrafanaDeployment:
+  name: grafana
+  image: grafana/grafana-oss
+  service:
+    port: 3000
+    targetPort: 3000
+    type: ClusterIP
+    name: grafana
+
+Prometheus:
+  name: prometheus
+  image: prom/prometheus
+  service:
+    port: 9090
+    targetPort: 9090
+    type: ClusterIP
+    name: prometheus
+
+DataGenerator:
+  name: data-generator
+  image: zsemi02/grappa-datagenerator

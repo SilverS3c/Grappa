@@ -1,0 +1,126 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.GrappaConfigMap.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  BACKEND: influxdb
+  ID: test
+  MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.mainConfig }}"
+  mainconfig: |+
+    {
+        "log": {
+            "format": "json",
+            "level": "info",
+            "file": "{{ .Values.GrappaConfigMap.log }}",
+            "rotation": {
+                "active": "size",
+                "size": "5M",
+                "backupCount": 1,
+                "time": 0
+            }
+        },
+        "plugins": [
+            {"name": "influxdb", "file": "influxdb", "config": "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.influxdbPlugin }}"}
+        ],
+        "listen": 
+        {
+            "port": {{ .Values.GrappaDeployment.influxdb.service.targetPort }},
+            "address": "0.0.0.0"
+        },
+        "auth": true,
+        "users": [
+            {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+        ],
+        "monitoring": {
+            "format": "prometheus",
+            "users": [
+                {"username": "monitor", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+            ]
+        }
+    }
+
+  influxdbconfig: |+
+    {
+        "connection": {
+            "address": "http://databases:8086",
+            "org": "main",
+            "token": "s_Z3M-eU6kaaAqxqbEGA4qpBhZ3rh0mePnrA6WjGQqL6txf51lhhPoFUvPVkJvSJ0vbWgF-5-G9jn8q2A8BMBQ=="
+        }
+    }
+
+  
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.GrappaConfigMapMySQL.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  BACKEND: mysql
+  ID: test-mysql
+  MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mainConfig }}"
+  mainconfig: |+
+    {
+        "log": {
+            "format": "json",
+            "level": "info",
+            "file": "{{ .Values.GrappaConfigMapMySQL.log }}",
+            "rotation": {
+                "active": "size",
+                "size": "5M",
+                "backupCount": 1,
+                "time": 0
+            }
+        },
+        "plugins": [
+            {"name": "mysql", "file": "sql", "config": "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mysqlPlugin }}"}
+        ],
+        "listen": 
+        {
+            "port": {{ .Values.GrappaDeployment.mysql.service.targetPort }},
+            "address": "0.0.0.0"
+        },
+        "auth": true,
+        "users": [
+            {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+        ],
+        "monitoring": {
+            "format": "prometheus",
+            "users": [
+                {"username": "monitor", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+            ]
+        }
+    }
+
+  mysqlconfig: |+
+    {
+        "connection": {
+            "address": "mysql+mysqlconnector://{{ .Values.DatabasesDeployment.MySQL.username }}:{{ .Values.DatabasesDeployment.MySQL.password }}@databases/{{ .Values.DatabasesDeployment.MySQL.database }}"
+        },
+        "database": {
+            "tables": [
+                {
+                    "name": "ram_usage",
+                    "type": "timeseries",
+                    "timeColumn": "time",
+                    "columns": [
+                        {"name": "time", "type": "time", "input": "input"},
+                        {"name": "ram", "type": "number", "input": "input"}
+                    ]
+                },
+                {
+                    "name": "cpu_usage",
+                    "type": "timeseries",
+                    "timeColumn": "time",
+                    "columns": [
+                        {"name": "time", "type": "time", "input": "input"},
+                        {"name": "cpu", "type": "number", "input": "input"}
+                    ]
+                }
+            ]
+
+        }
+    }

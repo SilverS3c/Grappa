@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {{ $fullname := printf "%s-%s-databases" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+  name: {{ $fullname }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.DatabasesDeployment.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.DatabasesDeployment.name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.DatabasesDeployment.name }}
+    spec:
+      containers:
+      - name: {{ .Values.DatabasesDeployment.InfluxDb.name }}
+        image: "{{ .Values.DatabasesDeployment.InfluxDb.image }}"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - configMapRef:
+              name: influxdb
+          - secretRef:
+              name: secret-influxdb
+        ports:
+        - containerPort: {{ .Values.DatabasesDeployment.InfluxDb.service.port | int }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.DatabasesDeployment.InfluxDb.service.port | int }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.DatabasesDeployment.InfluxDb.service.port | int }}
+        resources:
+            limits:
+                memory: "512Mi"
+                cpu: "500m"
+      - name: {{ .Values.DatabasesDeployment.MySQL.name }}
+        image: {{ .Values.DatabasesDeployment.MySQL.image }}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: mysql-init-scipts
+            mountPath: /docker-entrypoint-initdb.d
+        envFrom:
+          - secretRef:
+              name: secret-mysql
+        ports:
+        - containerPort: {{ .Values.DatabasesDeployment.MySQL.service.port | int }}
+        livenessProbe:
+            exec:
+                command: ["mysqladmin", "ping"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+        readinessProbe:
+            exec:
+                # Check we can execute queries over TCP (skip-networking is off).
+                command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1", "-u{{ .Values.DatabasesDeployment.MySQL.username }}", "-p{{ .Values.DatabasesDeployment.MySQL.password }}"]
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 1
+        resources:
+            limits:
+                memory: "512Mi"
+                cpu: "500m"
+      volumes:
+        - name: mysql-init-scipts
+          configMap:
+            name: {{ .Values.DatabasesDeployment.MySQL.configmap }}
+            items:
+              - key: init
+                path: a_init.sql

@@ -1,0 +1,12 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.DataGenerator.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  BUCKET: {{ .Values.DatabasesDeployment.InfluxDb.bucket }}
+  INFLUXDB_ADDRESS: "http://{{ .Values.DatabasesDeployment.name }}:{{ .Values.DatabasesDeployment.InfluxDb.service.port }}"
+  ORG: {{ .Values.DatabasesDeployment.InfluxDb.org }}
+  MYSQL_ADDRESS: {{ .Values.DatabasesDeployment.name }}
+  MYSQL_DATABASE: {{ .Values.DatabasesDeployment.MySQL.database }}
+  MYSQL_PORT: "{{ .Values.DatabasesDeployment.MySQL.service.port }}"

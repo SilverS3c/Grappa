@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.GrafanaDeployment.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.GrafanaDeployment.name }}
+spec:
+  type: {{ .Values.GrafanaDeployment.service.type }}
+  ports:
+  - port: {{ .Values.GrafanaDeployment.service.port }}
+    targetPort: {{ .Values.GrafanaDeployment.service.targetPort }}
+    protocol: TCP
+    name: {{ .Values.GrafanaDeployment.service.name }}
+  selector:
+    app: {{ .Values.GrafanaDeployment.name }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.Prometheus.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.Prometheus.name }}
+spec:
+  type: {{ .Values.Prometheus.service.type }}
+  ports:
+  - port: {{ .Values.Prometheus.service.port }}
+    targetPort: {{ .Values.Prometheus.service.targetPort }}
+    protocol: TCP
+    name: {{ .Values.Prometheus.service.name }}
+  selector:
+    app: {{ .Values.GrafanaDeployment.name }}

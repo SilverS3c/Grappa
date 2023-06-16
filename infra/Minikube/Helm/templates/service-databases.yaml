@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.DatabasesDeployment.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.DatabasesDeployment.name }}
+spec:
+  type: {{ .Values.DatabasesDeployment.serviceType }}
+  ports:
+  - port: {{ .Values.DatabasesDeployment.InfluxDb.service.port }}
+    targetPort: {{ .Values.DatabasesDeployment.InfluxDb.service.targetPort }}
+    protocol: TCP
+    name: {{ .Values.DatabasesDeployment.InfluxDb.name }}
+  - port: {{ .Values.DatabasesDeployment.MySQL.service.port }}
+    targetPort: {{ .Values.DatabasesDeployment.MySQL.service.targetPort }}
+    protocol: TCP
+    name: {{ .Values.DatabasesDeployment.MySQL.name }}
+  selector:
+    app: {{ .Values.DatabasesDeployment.name }}

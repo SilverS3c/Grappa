@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: influxdb
+  namespace: {{ .Values.namespace }}
+data:
+  DOCKER_INFLUXDB_INIT_MODE: setup
+  DOCKER_INFLUXDB_INIT_USERNAME: {{ .Values.DatabasesDeployment.InfluxDb.username }}
+  DOCKER_INFLUXDB_INIT_ORG: {{ .Values.DatabasesDeployment.InfluxDb.org }}
+  DOCKER_INFLUXDB_INIT_BUCKET: {{ .Values.DatabasesDeployment.InfluxDb.bucket }}
+  

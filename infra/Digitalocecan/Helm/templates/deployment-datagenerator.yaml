@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {{ $fullname := printf "%s-%s-datagenerator" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+  name: {{ $fullname }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.DataGenerator.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.DataGenerator.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.DataGenerator.name }}
+    spec:
+      containers:
+      - name: {{ .Values.DataGenerator.name }}
+        image: "{{ .Values.DataGenerator.image }}"
+        imagePullPolicy: Always
+        envFrom:
+            - configMapRef:
+                name: {{ .Values.DataGenerator.name }}
+            - secretRef:
+                name: {{ .Values.DataGenerator.name }}
+        resources:
+            limits:
+                memory: "256Mi"
+                cpu: "100m"

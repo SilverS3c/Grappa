@@ -1,0 +1,3 @@
+influxdb-client
+influxdb
+mysql-connector-python==8.0.33

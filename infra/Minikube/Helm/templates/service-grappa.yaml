@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.GrappaDeployment.name }}
+  labels:
+    app: {{ .Values.GrappaDeployment.name }}
+spec:
+  type: {{ .Values.GrappaDeployment.influxdb.service.type }}
+  ports:
+    - port: {{ .Values.GrappaDeployment.influxdb.service.port }}
+      targetPort: {{ .Values.GrappaDeployment.influxdb.service.targetPort }}
+      protocol: TCP
+  selector:
+    app: {{ .Values.GrappaDeployment.name }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.GrappaDeployment.mysql.name }}
+  labels:
+    app: {{ .Values.GrappaDeployment.mysql.name }}
+spec:
+  type: {{ .Values.GrappaDeployment.mysql.service.type }}
+  ports:
+    - port: {{ .Values.GrappaDeployment.mysql.service.port }}
+      targetPort: {{ .Values.GrappaDeployment.mysql.service.targetPort }}
+      protocol: TCP
+  selector:
+    app: {{ .Values.GrappaDeployment.name }}

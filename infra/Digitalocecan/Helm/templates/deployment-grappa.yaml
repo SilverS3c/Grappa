@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {{ $fullname := printf "%s-%s-%s" .Release.Name .Chart.Name .Values.GrappaDeployment.name | trunc 63 | trimSuffix "-" }}
+  name: {{ $fullname }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ .Values.GrappaDeployment.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.GrappaDeployment.name }}
+  replicas: {{ default 1 .Values.replicaCount | int }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.GrappaDeployment.name }}
+    spec:
+      containers:
+      - name: {{ .Values.GrappaDeployment.influxdb.name }}
+        image: "{{ .Values.GrappaDeployment.image }}"
+        imagePullPolicy: Always
+        volumeMounts:
+            - name: config-vol
+              mountPath: {{ .Values.GrappaConfigMap.configDir }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.GrappaConfigMap.name }}
+        ports:
+        - containerPort: {{ .Values.GrappaDeployment.influxdb.service.targetPort | int }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.GrappaDeployment.influxdb.service.targetPort | int }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.GrappaDeployment.influxdb.service.targetPort | int }}
+        resources:
+          limits:
+                memory: "128Mi"
+                cpu: "200m"
+      - name: {{ .Values.GrappaDeployment.mysql.name }}
+        image: "{{ .Values.GrappaDeployment.image }}"
+        imagePullPolicy: Always
+        volumeMounts:
+            - name: config-vol-mysql
+              mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.GrappaConfigMapMySQL.name }}
+        ports:
+        - containerPort: {{ .Values.GrappaDeployment.mysql.service.targetPort | int }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.GrappaDeployment.mysql.service.targetPort | int }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.GrappaDeployment.mysql.service.targetPort | int }}
+        resources:
+          limits:
+                memory: "128Mi"
+                cpu: "200m"
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: config-vol
+          configMap:
+            name: {{ .Values.GrappaConfigMap.name }}
+            items:
+              - key: mainconfig
+                path: {{ .Values.GrappaConfigMap.mainConfig }}
+              - key: influxdbconfig
+                path: {{ .Values.GrappaConfigMap.influxdbPlugin }}
+        - name: config-vol-mysql
+          configMap:
+            name: {{ .Values.GrappaConfigMapMySQL.name }}
+            items:
+              - key: mainconfig
+                path: {{ .Values.GrappaConfigMapMySQL.mainConfig }}
+              - key: mysqlconfig
+                path: {{ .Values.GrappaConfigMapMySQL.mysqlPlugin }}
