@@ -13,6 +13,7 @@ Install Metallb:
 helm repo add metallb https://metallb.github.io/metallb
 helm install --create-namespace -n metallb metallb metallb/metallb
 ```
+Configure Metallb LoadBalancer IP range
 
 Install Traefik:
 ```
