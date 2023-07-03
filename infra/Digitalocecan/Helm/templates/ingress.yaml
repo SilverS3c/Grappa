@@ -7,7 +7,8 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - http:
+  - host: "grafana.grappa.local"
+    http:
       paths:
       - path: /
         pathType: Prefix
@@ -16,17 +17,3 @@ spec:
                 name: {{ .Values.GrafanaDeployment.name }}
                 port:
                     number: {{ .Values.GrafanaDeployment.service.port }}
-      - path: /influxdb
-        pathType: Prefix
-        backend:
-            service:
-                name: {{ .Values.DatabasesDeployment.InfluxDb.name }}
-                port:
-                    number: {{ .Values.DatabasesDeployment.InfluxDb.service.port }}
-      - path: /mysql
-        pathType: Prefix
-        backend:
-            service:
-                name: {{ .Values.DatabasesDeployment.MySQL.name }}
-                port:
-                    number: {{ .Values.DatabasesDeployment.MySQL.service.port }}

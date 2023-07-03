@@ -1,0 +1,6 @@
+pre-requirements:
+```
+kubectl
+helm
+```
+
