@@ -25,17 +25,17 @@ spec:
           - secretRef:
               name: secret-grafana
         ports:
-        - containerPort: {{ .Values.GrafanaDeployment.service.port | int }}
+        - containerPort: {{ .Values.GrafanaDeployment.service.targetPort | int }}
         livenessProbe:
           initialDelaySeconds: 15
           httpGet:
               path: /robots.txt
-              port: {{ .Values.GrafanaDeployment.service.port | int }}
+              port: {{ .Values.GrafanaDeployment.service.targetPort | int }}
               scheme: HTTP
         readinessProbe:
           initialDelaySeconds: 15
           tcpSocket:
-              port: {{ .Values.GrafanaDeployment.service.port | int }}
+              port: {{ .Values.GrafanaDeployment.service.targetPort | int }}
         resources:
             limits:
                 memory: "750Mi"
@@ -47,15 +47,15 @@ spec:
             - name: config-vol
               mountPath: /etc/prometheus
         ports:
-        - containerPort: {{ .Values.Prometheus.service.port | int }}
+        - containerPort: {{ .Values.Prometheus.service.targetPort | int }}
         livenessProbe:
           httpGet:
               path: /
-              port: {{ .Values.Prometheus.service.port | int }}
+              port: {{ .Values.Prometheus.service.targetPort | int }}
               scheme: HTTP
         readinessProbe:
           tcpSocket:
-              port: {{ .Values.Prometheus.service.port | int }}
+              port: {{ .Values.Prometheus.service.targetPort | int }}
         resources:
             limits:
                 memory: "400Mi"
