@@ -17,4 +17,4 @@ spec:
             service:
                 name: {{ .Values.GrafanaDeployment.name }}
                 port:
-                    number: {{ .Values.GrafanaDeployment.service.port }}
+                    number: {{ .Values.GrafanaDeployment.service.targetPort }}
