@@ -4,6 +4,8 @@ metadata:
   name: main-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
 spec:
   ingressClassName: nginx
   rules:

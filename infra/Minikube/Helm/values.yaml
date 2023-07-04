@@ -67,7 +67,7 @@ GrafanaDeployment:
   name: grafana
   image: grafana/grafana-oss
   service:
-    port: 3000
+    port: 80
     targetPort: 3000
     type: LoadBalancer
     name: grafana
