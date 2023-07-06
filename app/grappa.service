@@ -1,0 +1,10 @@
+[Unit]
+Description=Grafana Json Proxy  Application
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python /opt/grappa/Grappa.py
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
