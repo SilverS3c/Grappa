@@ -22,3 +22,5 @@ Dashboard:
 ```
 kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
 ```
+
+Grafana is available through an ingress via the host grafana.grappa.local. This host needs to point to the Metallb Load Balancer's address. This can be solved via the hosts file.
