@@ -162,21 +162,18 @@ def loadMainConfig(path="./config/main.json"):
         with open(path, "r") as conf:
             return json.load(conf)
 
-CONFIG = loadMainConfig()
 
-argparser = argparse.ArgumentParser(description="python3 grappa.py -b/--backend <plugin> -i/--id <app identifier>")
-argparser.add_argument("--backend", "-b", choices=[plugin["name"] for plugin in CONFIG["plugins"]], nargs=1, required=True, type=str)
-argparser.add_argument("--id", "-i", nargs=1, required=True, type=str)
-args = argparser.parse_args()
+
+
     
-def loadPluginConfig():
+def loadPluginConfig(CONFIG, args):
         for plugin in CONFIG["plugins"]:
             if plugin["name"] == args.backend[0]:
                 with open(plugin["config"]) as f:
                     return json.load(f)
         raise Exception("No plugin found with specified name!")
 
-PLUGIN_CONF = loadPluginConfig()
+
 
 def getPluginPath():
     for plugin in CONFIG["plugins"]:
@@ -184,29 +181,46 @@ def getPluginPath():
             return plugin["file"]
     raise Exception("No plugin found!")
             
-grappa = Grappa(CONFIG, PLUGIN_CONF, getPluginPath(), args.id[0], args.backend[0])
-
-app = Flask(__name__)
-
-@app.route("/")
-def healthCheck():
-     return grappa.healthCheck()
-
-@app.route("/metrics", methods=['POST'])
-def metrics():
-    return grappa.metrics()
-
-@app.route('/metric-payload-options', methods = ['POST'])
-def metricPayloadOptions():
-    return grappa.metricPayloadOptions()
-
-@app.route('/query', methods = ['POST'])
-def query():
-    return grappa.query()
-
-@app.route('/monitor')
-def monitor():
-    return grappa.monitor()
 
 if __name__ == '__main__':
+    CONFIG = loadMainConfig()
+
+    argparser = argparse.ArgumentParser(description="python3 grappa.py -b/--backend <plugin> -i/--id <app identifier>")
+    argparser.add_argument("--backend", "-b", choices=[plugin["name"] for plugin in CONFIG["plugins"]], nargs=1, required=True, type=str)
+    argparser.add_argument("--id", "-i", nargs=1, required=True, type=str)
+    args = argparser.parse_args()
+
+    PLUGIN_CONF = loadPluginConfig(CONFIG, args)
+
+    grappa = Grappa(CONFIG, PLUGIN_CONF, getPluginPath(), args.id[0], args.backend[0])
+
+    app = Flask(__name__)
+
+    @app.route("/")
+    def healthCheck():
+        return grappa.healthCheck()
+
+    @app.route("/metrics", methods=['POST'])
+    def metrics():
+        return grappa.metrics()
+
+    @app.route('/metric-payload-options', methods = ['POST'])
+    def metricPayloadOptions():
+        return grappa.metricPayloadOptions()
+
+    @app.route('/query', methods = ['POST'])
+    def query():
+        return grappa.query()
+
+    @app.route('/monitor')
+    def monitor():
+        return grappa.monitor()
+
     app.run(host=CONFIG["listen"]["address"], port=CONFIG["listen"]["port"])
+
+    
+
+
+
+
+
