@@ -4,3 +4,4 @@ influxdb-client
 Flask-HTTPAuth
 mysql-connector-python
 jsonschema
+Werkzeug==2.2.3
