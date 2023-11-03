@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-make all
+make PLUGIN=influxdb all
 ```
 
 ## Overview
