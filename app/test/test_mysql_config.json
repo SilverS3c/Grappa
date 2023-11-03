@@ -1,0 +1,20 @@
+{
+    "$schema": "../config/schemas/sql.schema.json",
+    "connection": {
+        "address": "mysql+mysqlconnector://root:pssword@localhost/grafanatest"
+    },
+    "database": {
+        "tables": [
+            {
+                "name": "ram_usage",
+                "type": "timeseries",
+                "timeColumn": "time",
+                "columns": [
+                    {"name": "time", "type": "time", "input": "input"},
+                    {"name": "ram", "type": "number", "input": "input"}
+                ]
+            }
+        ]
+
+    }
+}
