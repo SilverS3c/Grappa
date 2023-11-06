@@ -21,11 +21,11 @@ jobs:
         context: app
         file: app/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/grappa:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/grappa:latest
     - name: Build and push Grappa-datagenerator
       uses: docker/build-push-action@v5.0.0
       with:
         context: test
         file: test/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:latest
