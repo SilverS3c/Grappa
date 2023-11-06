@@ -33,6 +33,10 @@ jobs:
       working-directory: ./app/test
       run: |
         docker compose up -d
+    - name: Sleep
+      uses: jakejarvis/wait-action@v0.1.1
+      with:
+        time: 1m
     - name: Test with unittest
       working-directory: ./app
       run: |
