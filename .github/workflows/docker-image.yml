@@ -16,13 +16,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
     - name: Build and push Grappa
-      working-directory: ${{ github.workspace }}/app
-      run: |
-        docker build . --file ./Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/grappa:${{ github.event.release.tag_name }} --tag ${{ secrets.DOCKERHUB_USERNAME }}/grappa:latest
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/grappa:${{ github.event.release.tag_name }}
+      uses: docker/build-push-action@v5.0.0
+      with:
+        context: app
+        file: app/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/grappa:latest
     - name: Build and push Grappa-datagenerator
-      working-directory: ${{ github.workspace }}/test
-      run: |
-        docker build . --file ./Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:${{ github.event.release.tag_name }} --tag ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:latest
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:${{ github.event.release.tag_name }}
-
+      uses: docker/build-push-action@v5.0.0
+      with:
+        context: test
+        file: test/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/grappa-datagenerator:latest
