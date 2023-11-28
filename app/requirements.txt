@@ -5,3 +5,4 @@ Flask-HTTPAuth
 mysql-connector-python
 jsonschema
 Werkzeug==3.0.1
+python-ldap

@@ -9,6 +9,7 @@ import importlib
 import os
 import hashlib
 import monitor_endpoint
+import ldap
 
 class GrappaLogging:
     class Type:
