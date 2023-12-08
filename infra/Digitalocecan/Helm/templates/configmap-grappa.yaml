@@ -7,9 +7,9 @@ data:
   BACKEND: influxdb
   ID: test
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.mainConfig }}"
+  IGNORE_SCHEMAS: {{ .Values.GrappaConfigMap.ignore-schemas }}
   mainconfig: |+
     {
-        "$schema": "schemas/main.schema.json",
         "log": {
             "format": "json",
             "level": "info",
@@ -43,7 +43,6 @@ data:
 
   influxdbconfig: |+
     {
-        "$schema": "../schemas/influxdb.schema.json",
         "connection": {
             "address": "http://databases:8086",
             "org": "main",
@@ -66,7 +65,6 @@ data:
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mainConfig }}"
   mainconfig: |+
     {
-        "$schema": "schemas/main.schema.json",
         "log": {
             "format": "json",
             "level": "info",
@@ -100,7 +98,6 @@ data:
 
   mysqlconfig: |+
     {
-        "$schema": "../schemas/sql.schema.json",
         "connection": {
             "address": "mysql+mysqlconnector://{{ .Values.DatabasesDeployment.MySQL.username }}:{{ .Values.DatabasesDeployment.MySQL.password }}@databases/{{ .Values.DatabasesDeployment.MySQL.database }}"
         },
@@ -128,243 +125,3 @@ data:
 
         }
     }
-
----
-
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: {{ .Values.GrappaConfigMap.schemaConfig.name }}
-  namespace: {{ .Values.namespace }}
-data:
-    mainconfig: |+
-        {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "Main config",
-        "description": "Main configuration file of Grappa",
-        "type": "object",
-        "properties": {
-            "log": {
-                "type": "object",
-                "description": "Settings related to logging",
-                "properties": {
-                    "format": {
-                        "type": "string",
-                        "enum": ["json", "structured"]
-                    },
-                    "level": {
-                        "type": "string",
-                        "enum": ["debug", "info", "warning", "error", "critical"]
-                    },
-                    "file": {
-                        "type": "string"
-                    },
-                    "rotation": {
-                        "type": "object",
-                        "description": "Log rotation settings",
-                        "properties": {
-                            "active": {
-                                "type": "string",
-                                "enum": ["size", "time"]
-                            },
-                            "size": {
-                                "type": "string",
-                                "pattern": "^[0-9]+(B|K|KB|M|MB|G|GB|TB)$"
-                            },
-                            "backupCount": {
-                                "type": "integer"
-                            },
-                            "time": {
-                                "type": "integer",
-                                "description": "Time in hours"
-                            }
-                        },
-                        "required": ["active", "size", "backupCount", "time"]
-                    }
-                },
-                "required": ["format", "level", "file", "rotation"]
-            },
-        "plugins": {
-                "type": "array",
-                "description": "List of plugin objects",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "file": {
-                            "type": "string"
-                        },
-                        "config": {
-                            "type": "string"
-                        }
-                    },
-                    "required": ["name", "file", "config"]
-                }
-            },
-            "listen": {
-                "type": "object",
-                "properties": {
-                    "port": {
-                        "type": "integer"
-                    },
-                    "address": {
-                        "type": "string"
-                    }
-                },
-                "required": ["port", "address"]
-            },
-            "auth": {
-                "type": "boolean"
-            },
-            "users": {
-                "type": "array",
-                "description": "List of users who are authorized to run queries",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "username": {
-                            "type": "string"
-                        },
-                        "password": {
-                            "type": "string",
-                            "description": "SHA256 hash"
-                        }
-                    },
-                    "required": ["username", "password"]
-                }
-            },
-            "monitoring": {
-                "type": "object",
-                "properties": {
-                    "format": {
-                        "type": "string",
-                        "enum": ["json", "prometheus"],
-                        "description": "Output format for metrics"
-                    },
-                    "users": {
-                        "type": "array",
-                        "description": "List of users who are authorized to access the monitoring endpoint",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "username": {
-                                    "type": "string"
-                                },
-                                "password": {
-                                    "type": "string",
-                                    "description": "SHA256 hash"
-                                }
-                            },
-                            "required": ["username", "password"]
-                        }
-                    }
-                }
-            }
-        },
-        "required": ["log", "plugins", "listen", "auth", "users", "monitoring"]
-        }
-    influxdbconfig: |+
-        {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "SQL Config",
-        "description": "File to configure the SQL plugin for Grappa",
-        "type": "object",
-        "properties": {
-            "connection": {
-                "type": "object",
-                "properties": {
-                    "address": {
-                        "type": "string",
-                        "description": "target address"
-                    },
-                    "org": {
-                        "type": "string",
-                        "description": "Organization"
-                    },
-                    "token": {
-                        "type": "string",
-                        "description": "InfluxDb access token"
-                    }
-                },
-                "required": ["address", "org", "token"]
-            }
-        },
-        "required": ["connection"]
-        }
-    mysqlconfig: |+
-        {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "SQL Config",
-        "description": "File to configure the SQL plugin for Grappa",
-        "type": "object",
-        "properties": {
-            "connection": {
-                "type": "object",
-                "description": "Configure the connection string.",
-                "properties": {
-                    "address": {
-                        "type": "string",
-                        "description": "Connection string. Must be formatted according to SqlAlchemy's requirements."
-                    }
-                },
-                "required": ["address"]
-            },
-            "database": {
-                "type": "object",
-                "description": "Configure the database layout",
-                "properties": {
-                    "tables": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "description": "A table of the databse",
-                            "properties": {
-                                "name": {
-                                    "type": "string",
-                                    "description": "Name of the table"
-                                },
-                                "type": {
-                                    "type": "string",
-                                    "description": "Table or Timeseries",
-                                    "enum": ["table", "timeseries"]
-                                },
-                                "timeColumn": {
-                                    "type": "string",
-                                    "description": "Name of the column which holds the timestamps for the timeseries data"
-                                },
-                                "columns": {
-                                    "type": "array",
-                                    "description": "list of the columns",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "type": {
-                                                "type": "string",
-                                                "description": "Type of the data in the database",
-                                                "enum": ["string", "number", "time"]
-                                            },
-                                            "input": {
-                                                "type": "string",
-                                                "description": "Type of input which appears on Grafan's UI",
-                                                "enum": ["select", "multi-select", "input"]
-                                            }
-                                        },
-                                        "required": ["name", "type", "input"]
-                                    }
-                                }
-                            },
-                            "required": ["type", "name", "columns"]
-                        }
-                    }
-                },
-                "required": ["tables"]
-            }
-        },
-
-        "required": ["connection", "database"]
-        }
