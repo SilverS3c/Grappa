@@ -38,6 +38,7 @@ GrappaConfigMapMySQL:
   influxdbPlugin: plugins/influxdb.json
   mysqlPlugin: plugins/mysql.json
   log: /dev/null
+  ignoreSchemas: true
 
 DatabasesDeployment:
   name: databases

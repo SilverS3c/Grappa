@@ -18,8 +18,9 @@ class PluginBase:
         pass
 
     def validateConfig(self, pluginName: str):
-        if os.getenv("IGNORE_SCHEMAS").lower() == "true":
-            return
+        if os.getenv("IGNORE_SCHEMAS"):
+            if os.getenv("IGNORE_SCHEMAS").lower() == "true":
+                return
         for plugin in self.CONFIG["plugins"]:
             if plugin["name"] == pluginName:
                 schemaPath = '/'.join(plugin["config"].split('/')[:-1]) + "/" + self.PLUGIN_CONF["$schema"]

@@ -63,6 +63,7 @@ data:
   BACKEND: mysql
   ID: test-mysql
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mainConfig }}"
+  IGNORE_SCHEMAS: "{{ .Values.GrappaConfigMapMySQL.ignoreSchemas }}"
   mainconfig: |+
     {
         "log": {
