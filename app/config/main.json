@@ -3,7 +3,7 @@
     "log": {
         "format": "json",
         "level": "info",
-        "file": "/home/zsemi02/logs/grappa.log",
+        "file": "/dev/null",
         "rotation": {
             "active": "size",
             "size": "5M",

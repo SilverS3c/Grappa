@@ -7,6 +7,7 @@ data:
   BACKEND: influxdb
   ID: test
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.mainConfig }}"
+  IGNORE_SCHEMAS: "{{ .Values.GrappaConfigMap.ignoreSchemas }}"
   mainconfig: |+
     {
         "log": {
@@ -62,6 +63,7 @@ data:
   BACKEND: mysql
   ID: test-mysql
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mainConfig }}"
+  IGNORE_SCHEMAS: "{{ .Values.GrappaConfigMapMySQL.ignoreSchemas }}"
   mainconfig: |+
     {
         "log": {
