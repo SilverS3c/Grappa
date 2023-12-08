@@ -22,6 +22,8 @@ spec:
         volumeMounts:
             - name: config-vol
               mountPath: {{ .Values.GrappaConfigMap.configDir }}
+            - name: schemas
+              mountPath: {{ .Values.GrappaConfigMap.configDir }}
         envFrom:
         - configMapRef:
             name: {{ .Values.GrappaConfigMap.name }}
@@ -44,6 +46,8 @@ spec:
         imagePullPolicy: Always
         volumeMounts:
             - name: config-vol-mysql
+              mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}
+            - name: schemas
               mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}
         envFrom:
         - configMapRef:
@@ -81,3 +85,13 @@ spec:
                 path: {{ .Values.GrappaConfigMapMySQL.mainConfig }}
               - key: mysqlconfig
                 path: {{ .Values.GrappaConfigMapMySQL.mysqlPlugin }}
+        - name: schemas
+          configMap:
+            name: {{ .Values.GrappaConfigMap.schemaConfig.name }}
+            items:
+              - key: mainconfig
+                path: schemas/main.schema.json
+              - key: influxdbconfig
+                path: schemas/influxdb.schema.json
+              - key: mysqlconfig
+                path: schemas/sql.schema.json
