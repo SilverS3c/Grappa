@@ -99,13 +99,24 @@ class Grappa:
         self.monitoring = monitor_endpoint.Monitoring(CONFIG["monitoring"]["format"], 5*60*1000, instanceId)
 
     def isAuthOk(self):
-        if CONFIG["auth"]:
+        if CONFIG["auth"] and CONFIG["auth-type"] != None:
             if "authorization" not in request.headers:
                 return False
-            for user in CONFIG["users"]:
-                if user["username"] == request.authorization.username and user["password"] == hashlib.sha256(request.authorization.password.encode("utf-8")).hexdigest():
+            if CONFIG["auth-type"] == "config":
+                for user in CONFIG["users"]:
+                    if user["username"] == request.authorization.username and user["password"] == hashlib.sha256(request.authorization.password.encode("utf-8")).hexdigest():
+                        return True
+                return False
+            elif CONFIG["auth-type"] == "ldap":
+                if CONFIG["ldap"]["url"] == None or CONFIG["ldap"]["user-pattern"] == None:
+                    raise Exception("LDAP config is incomplete")
+                try:
+                    ldapConn = ldap.initialize(CONFIG["ldap"]["url"])
+                    ldapConn.simple_bind_s(CONFIG["ldap"]["user-pattern"].format(request.authorization.username), request.authorization.password)
                     return True
-            return False
+                except Exception as e:
+                    return False
+
         else:
             return True
         
