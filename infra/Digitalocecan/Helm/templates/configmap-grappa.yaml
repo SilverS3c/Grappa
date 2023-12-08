@@ -9,6 +9,7 @@ data:
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.mainConfig }}"
   mainconfig: |+
     {
+        "$schema": "schemas/main.schema.json",
         "log": {
             "format": "json",
             "level": "info",
@@ -42,6 +43,7 @@ data:
 
   influxdbconfig: |+
     {
+        "$schema": "../schemas/influxdb.schema.json",
         "connection": {
             "address": "http://databases:8086",
             "org": "main",
@@ -64,6 +66,7 @@ data:
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMapMySQL.configDir }}/{{ .Values.GrappaConfigMapMySQL.mainConfig }}"
   mainconfig: |+
     {
+        "$schema": "schemas/main.schema.json",
         "log": {
             "format": "json",
             "level": "info",
@@ -97,6 +100,7 @@ data:
 
   mysqlconfig: |+
     {
+        "$schema": "../schemas/sql.schema.json",
         "connection": {
             "address": "mysql+mysqlconnector://{{ .Values.DatabasesDeployment.MySQL.username }}:{{ .Values.DatabasesDeployment.MySQL.password }}@databases/{{ .Values.DatabasesDeployment.MySQL.database }}"
         },
