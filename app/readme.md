@@ -130,6 +130,13 @@ The endpoint is only available for users who can authenticate as one of the moni
 
 The output format can be either JSON or Prometheus compatible.
 
+## Environment variables of the Docker image
+
+  - ```BACKEND``` The selected plugin to load
+  - ```ID``` Identifier for logging
+  - ```MAIN_CONFIG_PATH``` Path of the main config file
+  - ```IGNORE_SCHEMAS``` If set to "true" Grappa doesn't validate the config files with the schemas
+
 ## Known issues
 
 - In the case when in Grafana explore query builder there are more than one metrics available in the list,
