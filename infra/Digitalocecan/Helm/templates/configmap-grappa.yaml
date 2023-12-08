@@ -7,7 +7,7 @@ data:
   BACKEND: influxdb
   ID: test
   MAIN_CONFIG_PATH: "{{ .Values.GrappaConfigMap.configDir }}/{{ .Values.GrappaConfigMap.mainConfig }}"
-  IGNORE_SCHEMAS: {{ .Values.GrappaConfigMap.ignore-schemas }}
+  IGNORE_SCHEMAS: "{{ .Values.GrappaConfigMap.ignore-schemas }}"
   mainconfig: |+
     {
         "log": {
