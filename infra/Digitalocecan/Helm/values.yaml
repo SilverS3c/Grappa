@@ -29,7 +29,7 @@ GrappaConfigMap:
   influxdbPlugin: plugins/influxdb.json
   mysqlPlugin: plugins/mysql.json
   log: /dev/null
-  ignore-schemas: true
+  ignoreSchemas: true
 
 GrappaConfigMapMySQL:
   name: configmap-grappa-mysql
