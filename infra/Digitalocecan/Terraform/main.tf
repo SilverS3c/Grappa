@@ -20,7 +20,7 @@ provider "digitalocean" {
 resource "digitalocean_kubernetes_cluster" "grappa-cluster" {
   name = "grappa-cluster"
   region = "nyc3"
-  version = "1.27.2-do.0"
+  version = "latest"
 
   node_pool {
     name = "worker-pool"
