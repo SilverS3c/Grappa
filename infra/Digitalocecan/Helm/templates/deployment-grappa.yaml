@@ -23,7 +23,7 @@ spec:
             - name: config-vol
               mountPath: {{ .Values.GrappaConfigMap.configDir }}
             - name: schemas
-              mountPath: {{ .Values.GrappaConfigMap.configDir }}
+              mountPath: {{ .Values.GrappaConfigMap.configDir }}/schemas
         envFrom:
         - configMapRef:
             name: {{ .Values.GrappaConfigMap.name }}
@@ -48,7 +48,7 @@ spec:
             - name: config-vol-mysql
               mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}
             - name: schemas
-              mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}
+              mountPath: {{ .Values.GrappaConfigMapMySQL.configDir }}/schemas
         envFrom:
         - configMapRef:
             name: {{ .Values.GrappaConfigMapMySQL.name }}
@@ -90,8 +90,8 @@ spec:
             name: {{ .Values.GrappaConfigMap.schemaConfig.name }}
             items:
               - key: mainconfig
-                path: schemas/main.schema.json
+                path: main.schema.json
               - key: influxdbconfig
-                path: schemas/influxdb.schema.json
+                path: influxdb.schema.json
               - key: mysqlconfig
-                path: schemas/sql.schema.json
+                path: sql.schema.json
