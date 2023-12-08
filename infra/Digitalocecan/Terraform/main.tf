@@ -39,5 +39,5 @@ output "cluster_ip" {
 }
 
 output "kubectl_command" {
-  value = "helm --kubeconfig=${var.kubeconfig_filename} install grappa-infra ../GrappaHelm"
+  value = "helm --kubeconfig=${var.kubeconfig_filename} install grappa-infra ../Helm"
 }
