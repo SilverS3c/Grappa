@@ -78,6 +78,24 @@
         "auth": {
             "type": "boolean"
         },
+        "auth-type": {
+            "type": "string",
+            "enum": ["config", "ldap"]
+        },
+        "ldap": {
+            "type": "object",
+            "description": "Configuring LDAP authentication",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "e.g.: ldap://localhost"
+                },
+                "user-pattern": {
+                    "type": "string",
+                    "description": "e.g.: uid={},ou=users,dc=example,dc=org"
+                }
+            }
+        },
         "users": {
             "type": "array",
             "description": "List of users who are authorized to run queries",

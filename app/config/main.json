@@ -22,6 +22,11 @@
         "address": "0.0.0.0"
     },
     "auth": true,
+    "auth-type": "ldap",
+    "ldap": {
+        "url": "ldap://192.168.0.234",
+        "user-pattern": "uid={},ou=users,dc=company,dc=com"
+    },
     "users": [
         {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
     ],
