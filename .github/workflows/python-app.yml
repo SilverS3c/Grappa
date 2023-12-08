@@ -26,6 +26,7 @@ jobs:
     - name: Install dependencies
       working-directory: ./app
       run: |
+        apt-get install -y build-essential python3-dev libldap2-dev libsasl2-dev slapd ldap-utils tox lcov valgrind
         python -m pip install --upgrade pip
         pip install flake8
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
