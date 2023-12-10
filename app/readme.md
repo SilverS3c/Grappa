@@ -36,10 +36,11 @@ The listening port and address, logging and loadable plugins can be configured i
 Main config example:
 ```
 {
+    "$schema": "schemas/main.schema.json",
     "log": {
         "format": "json",
         "level": "info",
-        "file": "/home/user/logs/grappa.log",
+        "file": "/dev/null",
         "rotation": {
             "active": "size",
             "size": "5M",
@@ -56,16 +57,26 @@ Main config example:
     {
         "port": 5000,
         "address": "0.0.0.0"
+    },
+    "auth": true,
+    "users": [
+        {"username": "test", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+    ],
+    "monitoring": {
+        "format": "prometheus",
+        "users": [
+            {"username": "monitor", "password": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"}
+        ]
     }
 }
 ```
 The name of the plugin is which one supplies when starting Grappa, and the 'file' is what the application will load at startup. Every plugin has its own "plugin config", which is responsible to configure everything in connection with the plugin. It's unique for every plugin.
 
 To build a docker image from Grappa, issue the following command in the root directory:
-``` sudo docker build -t grappa . ```
+``` docker build -t grappa . ```
 
 To start the created image type:
-``` sudo docker run -e BACKEND=<backend> -e ID=<id> -p 5000:5000 -d grappa ```
+``` docker run -e BACKEND=<backend> -e ID=<id> -p 5000:5000 -d grappa ```
 Two environment variables are necessary, BACKEND and ID.
 Note: Don't forget to change the port in the Dockerfile and in the command line if it's other than the default 5000!
 
@@ -93,7 +104,7 @@ The getMetrics method will be called when Grafana is sending a request to the /m
 
 The loadMetricPayloadOptions is called when a request from Grafana reaches the /metric-payload-options endpint.
 
-The queryDb method is responsible for retrieving the data from the datavase and to send it back to Grafana in the correct format.
+The queryDb method is responsible for retrieving the data from the database and to send it back to Grafana in the correct format.
 It is being called when Grafana sends a request to /query
 
 The format of the responses must conform with the specification defined in the Json Datasouce documentation (https://github.com/simPod/GrafanaJsonDatasource)
