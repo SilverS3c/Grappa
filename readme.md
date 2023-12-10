@@ -7,7 +7,7 @@
 4. terraform init
 5. terraform apply -var "kubeconfig_filename=~/kubeconfig" -auto-approve	(This is going to take a while (~5m))
 6. helm --kubeconfig=~/kubeconfig install grappa-infra ../Helm
-7. Find LoadBalancer's ip from DigitalOcean
+7. Find LoadBalancer's ip address (e.g.: kubectl get services --kubeconfig=~/kubeconfig)
 8. Copy IP to a browser's address bar
 9. Log in with username: admin and password: MIKPassword111
 10. Home -> Connections -> Data Sources -> Add Data Source
